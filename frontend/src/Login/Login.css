@@ -1,0 +1,81 @@
+/* Reset minimalnych marginesów */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.login-wrapper {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f0f2f5;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Główna karta */
+.login-box {
+    width: 380px;
+    padding: 40px 35px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Nagłówek */
+.login-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+/* Inputy */
+.login-box input {
+    width: 100%;
+    font-size: 15px;
+    padding: 12px 14px;
+    border: 1px solid #d5d5d5;
+    border-radius: 10px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fafafa;
+}
+
+.login-box input:focus {
+    border-color: #007bff;
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(0, 123, 255, 0.35);
+    outline: none;
+}
+
+/* Komunikat błędu */
+.login-error {
+    color: #d10000;
+    font-size: 14px;
+    text-align: center;
+    min-height: 18px;
+}
+
+/* Przycisk */
+.login-btn {
+    background-color: #3079ff;
+    color: white;
+    padding: 14px 10px;
+    font-size: 17px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.login-btn:hover {
+    background-color: #2468e6;
+}
+
+.login-btn:active {
+    transform: scale(0.97);
+}
