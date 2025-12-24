@@ -1,18 +1,15 @@
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import NavBar from "../NavBar/NavBar";
 
 export default function MainPanel() {
-    const nav = useNavigate();
-
-    const logout = async () => {
-        await axios.post("http://localhost:3001/logout");
-        nav("/");
-    };
 
     return (
         <div>
-            <h1>Panel główny</h1>
-            <button onClick={logout}>Wyloguj</button>
+            <NavBar />
+
+            <div style={{ padding: "20px" }}>
+                <h1>Panel główny</h1>
+                <p>Tu będzie Twoja zawartość panelu...</p>
+            </div>
         </div>
     );
 }
