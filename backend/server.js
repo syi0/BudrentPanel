@@ -23,7 +23,7 @@ app.use(express.json());
 
 app.use(session({
     name: "session-id",
-    secret: "BUDRENTT",
+    secret: "BUDR3NTbudrentBuDrEnT5@",
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -94,10 +94,19 @@ app.post("/logout", (req, res) => {
     });
 });
 
+const companiesRoutes = require("./routes/companies.routes")(db);
+const contactsRoutes = require("./routes/contacts.routes")(db);
+const settingsRoutes = require("./routes/settings.routes")(db);
+app.use("/api/companies", companiesRoutes);
+app.use("/api/contacts", contactsRoutes);
+app.use("/api", settingsRoutes);
+
+
+
+
+
+
 app.listen(3001, () => console.log("Backend running on port 3001"));
 
 
-const companiesRoutes = require("./routes/companies.routes")(db);
-const contactsRoutes = require("./routes/contacts.routes")(db);
-app.use("/api/companies", companiesRoutes);
-app.use("/api/contacts", contactsRoutes);
+

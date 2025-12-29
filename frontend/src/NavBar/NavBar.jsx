@@ -19,7 +19,6 @@ export default function Navbar() {
         nav("/");
     };
 
-    // zamykanie dropdowna po kliknięciu poza nim (DESKTOP)
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -46,7 +45,6 @@ export default function Navbar() {
                         <i className="fas fa-table"></i> Zlecenia
                     </div>
 
-                    {/* DROPDOWN DESKTOP */}
                     <div className="dropdown" ref={dropdownRef}>
                         <div
                             className="dropdown-header"
@@ -78,7 +76,7 @@ export default function Navbar() {
                         <i className="fas fa-chart-bar"></i> Raporty
                     </div>
 
-                    <div className="nav-item">
+                    <div className="nav-item" onClick={() => go("/settings")}>
                         <i className="fas fa-cog"></i> Ustawienia
                     </div>
 
