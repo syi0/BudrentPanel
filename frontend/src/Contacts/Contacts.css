@@ -6,7 +6,6 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* FILTRY = LOGIN BOX */
 .filters {
     background: #ffffff;
     padding: 30px 24px;
@@ -61,7 +60,6 @@
     background: #2468e6;
 }
 
-/* TABELA */
 .table-wrapper {
     padding: 30px;
 }

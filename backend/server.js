@@ -96,10 +96,11 @@ app.post("/logout", (req, res) => {
 
 const companiesRoutes = require("./routes/companies.routes")(db);
 const contactsRoutes = require("./routes/contacts.routes")(db);
-const settingsRoutes = require("./routes/settings.routes")(db);
 app.use("/api/companies", companiesRoutes);
 app.use("/api/contacts", contactsRoutes);
+const settingsRoutes = require("./routes/settings.companies")(db);
 app.use("/api", settingsRoutes);
+
 
 
 

@@ -1,4 +1,24 @@
 .settings-page {
-    padding: 24px;
+    width: 100%;
+}
+
+.settings-content {
     max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.settings-content h2 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 900px) {
+    .settings-content {
+        padding: 20px 16px;
+    }
 }

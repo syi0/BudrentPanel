@@ -82,7 +82,6 @@ export default function Navbar() {
 
                 </div>
 
-                {/* HAMBURGER */}
                 <div
                     className="hamburger"
                     onClick={() => setMobileOpen(v => !v)}
@@ -95,7 +94,6 @@ export default function Navbar() {
                 </button>
             </nav>
 
-            {/* MENU MOBILNE */}
             <div className={`mobile-menu ${mobileOpen ? "open" : ""}`}>
                 <div className="mobile-item" onClick={() => go("/panel")}>
                     Zlecenia
@@ -126,7 +124,7 @@ export default function Navbar() {
                 )}
 
                 <div className="mobile-item">Raporty</div>
-                <div className="mobile-item">Ustawienia</div>
+                <div className="mobile-item" onClick={() => go("/settings")}>Ustawienia</div>
             </div>
         </>
     );

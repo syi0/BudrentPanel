@@ -7,8 +7,6 @@ const db = new sqlite3.Database("./data.sqlite");
 module.exports = (db) => {
     const router = express.Router();
 
-    // GET /companies
-    // GET /companies (z filtrowaniem)
     router.get("/", (req, res) => {
         const {
             name = "",
@@ -44,7 +42,6 @@ module.exports = (db) => {
     });
 
 
-    // POST /companies
     router.post("/", (req, res) => {
         const {
             name,
@@ -74,7 +71,6 @@ module.exports = (db) => {
         );
     });
 
-    // PUT /companies/:id
     router.put("/:id", (req, res) => {
         const { id } = req.params;
 
@@ -111,7 +107,6 @@ module.exports = (db) => {
         );
     });
 
-    // DELETE /companies/:id (opcjonalne)
     router.delete("/:id", (req, res) => {
         const { id } = req.params;
 

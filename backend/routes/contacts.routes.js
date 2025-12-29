@@ -3,7 +3,6 @@ const express = require("express");
 module.exports = (db) => {
     const router = express.Router();
 
-    // GET /contacts (z firmą + filtrowaniem)
     router.get("/", (req, res) => {
         const {
             first_name = "",
@@ -51,7 +50,6 @@ module.exports = (db) => {
         });
     });
 
-    // POST /contacts
     router.post("/", (req, res) => {
         const {
             company_id,
@@ -88,7 +86,6 @@ module.exports = (db) => {
         );
     });
 
-    // PUT /contacts/:id
     router.put("/:id", (req, res) => {
         const { id } = req.params;
         const {

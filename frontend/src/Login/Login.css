@@ -1,4 +1,3 @@
-/* Reset minimalnych marginesów */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -26,7 +25,6 @@
     gap: 18px;
 }
 
-/* Nagłówek */
 .login-title {
     text-align: center;
     font-size: 26px;
@@ -34,7 +32,6 @@
     margin-bottom: 5px;
 }
 
-/* Inputy */
 .login-box input {
     width: 100%;
     font-size: 15px;
@@ -52,7 +49,6 @@
     outline: none;
 }
 
-/* Komunikat błędu */
 .login-error {
     color: #d10000;
     font-size: 14px;
@@ -60,7 +56,6 @@
     min-height: 18px;
 }
 
-/* Przycisk */
 .login-btn {
     background-color: #3079ff;
     color: white;

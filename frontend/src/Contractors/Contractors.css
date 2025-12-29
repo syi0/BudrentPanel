@@ -6,7 +6,6 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* LEWA KOLUMNA = LOGIN STYLE */
 .filters {
     background: #ffffff;
     padding: 30px 24px;
@@ -26,7 +25,6 @@
     font-weight: 600;
 }
 
-/* IDENTYCZNE INPUTY JAK LOGIN */
 .filters input {
     width: 100%;
     font-size: 15px;
@@ -60,12 +58,10 @@
     background: #2468e6;
 }
 
-/* PRAWA STRONA */
 .table-wrapper {
     padding: 30px;
 }
 
-/* KARTA TABELI = LOGIN BOX */
 table {
     width: 100%;
     border-collapse: collapse;

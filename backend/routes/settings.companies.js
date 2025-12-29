@@ -1,7 +1,4 @@
 const express = require("express");
-const router = express.Router();
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./data.sqlite");
 
 module.exports = (db) => {
     const router = express.Router();
@@ -12,8 +9,8 @@ module.exports = (db) => {
         }
 
         db.get(
-            `SELECT id, username, role, first_name, last_name 
-            FROM users WHERE id = ?`,
+            `SELECT id, username, role, first_name, last_name
+             FROM users WHERE id = ?`,
             [req.session.user.id],
             (err, row) => {
                 if (err) return res.sendStatus(500);
@@ -21,7 +18,6 @@ module.exports = (db) => {
             }
         );
     });
-
 
     router.put("/me", (req, res) => {
         if (!req.session.user) return res.sendStatus(401);
@@ -31,13 +27,46 @@ module.exports = (db) => {
         db.run(
             `UPDATE users SET first_name = ?, last_name = ? WHERE id = ?`,
             [first_name, last_name, req.session.user.id],
-            err => {
+            (err) => {
                 if (err) return res.sendStatus(500);
                 res.sendStatus(200);
             }
         );
     });
 
+    const bcrypt = require("bcrypt");
+
+    router.post("/users", async (req, res) => {
+        if (!req.session.user || req.session.user.role !== "admin") {
+            return res.sendStatus(403);
+        }
+
+        const { username, password, role } = req.body;
+
+        if (!username || !password || !role) {
+            return res.status(400).json({ error: "MISSING_DATA" });
+        }
+
+        const hashed = await bcrypt.hash(password, 10);
+
+        db.run(
+            `INSERT INTO users (username, password, role)
+            VALUES (?, ?, ?)`,
+            [username, hashed, role],
+            function (err) {
+                if (err) {
+                    console.error(err);
+                    return res.sendStatus(500);
+                }
+
+                res.status(201).json({
+                    id: this.lastID,
+                    username,
+                    role
+                });
+            }
+        );
+    });
 
     router.get("/users", (req, res) => {
         if (!req.session.user || req.session.user.role !== "admin") {
@@ -54,21 +83,25 @@ module.exports = (db) => {
         );
     });
 
-
     router.delete("/users/:id", (req, res) => {
-        if (!req.session.user || req.session.user.role !== "admin") {
-            return res.sendStatus(403);
-        }
+    if (!req.session.user || req.session.user.role !== "admin") {
+        return res.sendStatus(403);
+    }
 
-        db.run(
-            `DELETE FROM users WHERE id = ?`,
-            [req.params.id],
-            err => {
-                if (err) return res.sendStatus(500);
-                res.sendStatus(200);
-            }
-        );
-    });
+    if (Number(req.params.id) === req.session.user.id) {
+        return res.status(400).json({ error: "CANNOT_DELETE_SELF" });
+    }
+
+    db.run(
+        `DELETE FROM users WHERE id = ?`,
+        [req.params.id],
+        err => {
+            if (err) return res.sendStatus(500);
+            res.sendStatus(200);
+        }
+    );
+});
+
 
     return router;
-}
+};
