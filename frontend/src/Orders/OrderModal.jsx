@@ -32,16 +32,32 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 description: order.description || "",
                 advance_amount: order.advance_amount || "",
                 status: order.status || "nowy",
-                address: ""
+                address: order.address || ""
             });
 
             setClientType(order.company_id ? "company" : "individual");
+        } else {
+            setClientType("company");
+            setForm({
+                company_id: "",
+                contact_id: "",
+                responsible_user_id: "",
+                description: "",
+                advance_amount: "",
+                status: "nowy",
+                address: ""
+            });
         }
     }, [order]);
 
     const save = async () => {
         try {
-            const { address, ...payload } = form;
+            const payload = { ...form };
+
+            if (clientType === "company" && !payload.company_id) {
+                alert("Wybierz firmę dla zlecenia firmowego");
+                return;
+            }
 
             payload.company_id = payload.company_id || null;
             payload.contact_id = payload.contact_id || null;
@@ -66,6 +82,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
             console.error("Błąd zapisu procesu:", err);
         }
     };
+
 
 
     return (
@@ -188,6 +205,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
                         <option value="nowy">Nowe</option>
                         <option value="przekazane">Przekazane</option>
                         <option value="w_realizacji">W realizacji</option>
+                        <option value="ukonczone">Ukończone</option>
+
                     </select>
 
                     {order?.id && (

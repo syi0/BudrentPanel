@@ -124,7 +124,6 @@
     width: fit-content;
 }
 
-/* KLUCZ: STAŁA SZEROKOŚĆ = BRAK SKAKANIA */
 .toggle-group button {
     width: 150px;
     text-align: center;
@@ -198,4 +197,31 @@
     border-radius: 8px;
     cursor: pointer;
     font-size: 15px;
+}
+
+.status-ukonczone {
+    background: #eeeeee;
+    color: #424242;
+    text-decoration: line-through;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.pagination button {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    opacity: 0.4;
+    cursor: default;
 }

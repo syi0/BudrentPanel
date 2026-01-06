@@ -4,21 +4,18 @@ export default function OrdersFilters({ onChange }) {
     const [company, setCompany] = useState("");
     const [status, setStatus] = useState("");
 
-    // 🔁 LIVE FILTER
     useEffect(() => {
-        const filters = {
+        onChange({
             company: company.trim() || undefined,
             status: status || undefined
-        };
-
-        onChange(filters);
-    }, [company, status, onChange]);
+        });
+    }, [company, status]);
 
     return (
         <div className="orders-filters">
             <input
                 type="text"
-                placeholder="Filtruj po firmie"
+                placeholder="Filtruj po firmie / kontakcie"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
             />
@@ -31,6 +28,7 @@ export default function OrdersFilters({ onChange }) {
                 <option value="nowy">Nowe</option>
                 <option value="przekazane">Przekazane</option>
                 <option value="w_realizacji">W realizacji</option>
+                <option value="ukonczone">Ukończone</option>
             </select>
         </div>
     );

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "../api";
 import OrdersTable from "./OrdersTable";
 import OrdersFilters from "./OrdersFilters";
@@ -11,28 +11,43 @@ export default function OrdersPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [editingOrder, setEditingOrder] = useState(null);
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            try {
-                const res = await api.get("/processes", {
-                    params: filters
-                });
-                setOrders(res.data);
-            } catch (err) {
-                console.error("Błąd pobierania zleceń:", err);
-            }
-        };
+    const [page, setPage] = useState(1);
+    const [pages, setPages] = useState(1);
 
+    const handleFiltersChange = useCallback((f) => {
+        setFilters(f);
+        setPage(1);
+    }, []);
+
+    const fetchOrders = useCallback(async () => {
+        try {
+            const res = await api.get("/processes", {
+                params: {
+                    ...filters,
+                    page,
+                    limit: 20
+                }
+            });
+
+            setOrders(res.data.data);
+            setPages(res.data.pages);
+        } catch (err) {
+            console.error("Błąd pobierania zleceń:", err);
+        }
+    }, [filters, page]);
+
+    useEffect(() => {
         fetchOrders();
-    }, [filters]);
+    }, [fetchOrders]);
+
 
     return (
         <div className="orders-page">
             <div className="orders-content">
-                <h2>Nowe zlecenia</h2>
+                <h2>Zlecenia</h2>
 
                 <div className="orders-toolbar">
-                    <OrdersFilters onChange={setFilters} />
+                    <OrdersFilters onChange={handleFiltersChange} />
 
                     <button
                         className="primary-btn"
@@ -44,7 +59,6 @@ export default function OrdersPage() {
                         + Dodaj proces
                     </button>
                 </div>
-
 
                 <OrdersTable
                     orders={orders}
@@ -61,10 +75,31 @@ export default function OrdersPage() {
                     onClose={() => setModalOpen(false)}
                     onSaved={() => {
                         setModalOpen(false);
-                        setFilters({ ...filters }); 
+                        fetchOrders(); 
                     }}
                 />
+
             )}
+
+            <div className="pagination">
+                <button
+                    disabled={page === 1}
+                    onClick={() => setPage(p => p - 1)}
+                >
+                    ◀ Poprzednia
+                </button>
+
+                <span>
+                    Strona {page} z {pages}
+                </span>
+
+                <button
+                    disabled={page === pages}
+                    onClick={() => setPage(p => p + 1)}
+                >
+                    Następna ▶
+                </button>
+            </div>
         </div>
     );
 }
