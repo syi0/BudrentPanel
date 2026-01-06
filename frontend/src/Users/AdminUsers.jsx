@@ -5,6 +5,8 @@ import "./Users.css";
 export default function AdminUsers({ users, setUsers }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [role, setRole] = useState("user");
 
     const addUser = async () => {
@@ -13,13 +15,18 @@ export default function AdminUsers({ users, setUsers }) {
         const res = await axios.post("http://localhost:3001/api/users", {
             username,
             password,
-            role
+            role,
+            first_name: firstName,
+            last_name: lastName
         });
 
         setUsers([...users, res.data]);
+
         setUsername("");
         setPassword("");
         setRole("user");
+        setFirstName("");
+        setLastName("");
     };
 
     const removeUser = async (id) => {
@@ -45,6 +52,19 @@ export default function AdminUsers({ users, setUsers }) {
                 onChange={e => setPassword(e.target.value)}
             />
 
+            <input
+                placeholder="Imię"
+                value={firstName}
+                onChange={e => setFirstName(e.target.value)}
+            />
+
+            <input
+                placeholder="Nazwisko"
+                value={lastName}
+                onChange={e => setLastName(e.target.value)}
+            />
+
+
             <select value={role} onChange={e => setRole(e.target.value)}>
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
@@ -60,6 +80,22 @@ export default function AdminUsers({ users, setUsers }) {
                         <strong>{u.username}</strong>
                         <span className="role">{u.role}</span>
                     </div>
+                    <button
+                        onClick={async () => {
+                            const pwd = prompt("Nowe hasło:");
+                            if (!pwd) return;
+
+                            await axios.put(
+                                `http://localhost:3001/api/users/${u.id}/password`,
+                                { newPassword: pwd }
+                            );
+
+                            alert("Hasło zmienione");
+                        }}
+                    >
+                        Resetuj hasło
+                    </button>
+
 
                     <button
                         className="danger"

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import MissingProfileModal from "../Modals/MissingProfileModal";
 import { useNavigate } from "react-router-dom";
+import OrdersPage from "../Orders/OrdersPage";
 
 axios.defaults.withCredentials = true;
 
@@ -43,8 +44,7 @@ export default function MainPanel() {
                     pointerEvents: showModal ? "none" : "auto"
                 }}
             >
-                <h1>Panel główny</h1>
-                <p>Tu będzie Twoja zawartość panelu...</p>
+                <OrdersPage />
             </div>
         </div>
     );

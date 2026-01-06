@@ -72,10 +72,6 @@ export default function Navbar() {
                         )}
                     </div>
 
-                    <div className="nav-item">
-                        <i className="fas fa-chart-bar"></i> Raporty
-                    </div>
-
                     <div className="nav-item" onClick={() => go("/settings")}>
                         <i className="fas fa-cog"></i> Ustawienia
                     </div>
@@ -123,7 +119,6 @@ export default function Navbar() {
                     </div>
                 )}
 
-                <div className="mobile-item">Raporty</div>
                 <div className="mobile-item" onClick={() => go("/settings")}>Ustawienia</div>
             </div>
         </>

@@ -78,6 +78,7 @@ thead {
 th, td {
     padding: 14px;
     border-bottom: 1px solid #eee;
+    text-align: center;
 }
 
 tbody tr:hover {

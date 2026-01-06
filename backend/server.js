@@ -94,17 +94,32 @@ app.post("/logout", (req, res) => {
     });
 });
 
+app.get("/api/companies2", (req, res) => {
+    db.all(`SELECT id, name FROM companies`, [], (e, r) => res.json(r));
+});
+
+app.get("/api/contacts2", (req, res) => {
+    db.all(`
+        SELECT id, first_name || ' ' || last_name AS name, company_id
+        FROM contacts
+    `, [], (e, r) => res.json(r));
+});
+
+app.get("/api/users2", (req, res) => {
+    db.all(`
+        SELECT id, first_name || ' ' || last_name AS name
+        FROM users
+    `, [], (e, r) => res.json(r));
+});
+
 const companiesRoutes = require("./routes/companies.routes")(db);
 const contactsRoutes = require("./routes/contacts.routes")(db);
+const settingsRoutes = require("./routes/settings.companies")(db);
+const processesRoutes = require("./routes/processes.routes")(db);
 app.use("/api/companies", companiesRoutes);
 app.use("/api/contacts", contactsRoutes);
-const settingsRoutes = require("./routes/settings.companies")(db);
 app.use("/api", settingsRoutes);
-
-
-
-
-
+app.use("/api/processes", processesRoutes);
 
 
 app.listen(3001, () => console.log("Backend running on port 3001"));
