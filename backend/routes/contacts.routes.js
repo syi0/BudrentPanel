@@ -5,50 +5,86 @@ module.exports = (db) => {
 
     router.get("/", (req, res) => {
         const {
+            company = "",
             first_name = "",
             last_name = "",
             email = "",
-            company = "",
-            verified = ""
+            verified = "",
+            page = 1,
+            limit = 20
         } = req.query;
 
-        const sql = `
-            SELECT
-                c.id,
-                c.first_name,
-                c.last_name,
-                c.email,
-                c.verified,
-                c.marketing_consent,
-                c.company_id,
-                co.name AS company_name
-            FROM contacts c
-            LEFT JOIN companies co ON co.id = c.company_id
-            WHERE c.first_name LIKE ?
-              AND c.last_name LIKE ?
-              AND c.email LIKE ?
-              AND (co.name LIKE ? OR co.name IS NULL)
-              AND (? = '' OR c.verified = ?)
-            ORDER BY c.id DESC
-        `;
+        const p = Math.max(Number(page) || 1, 1);
+        const l = Math.min(Number(limit) || 20, 100);
+        const offset = (p - 1) * l;
 
-        const params = [
-            `%${first_name}%`,
-            `%${last_name}%`,
-            `%${email}%`,
-            `%${company}%`,
-            verified,
-            verified
-        ];
+        const filters = [];
+        const params = [];
 
-        db.all(sql, params, (err, rows) => {
-            if (err) {
-                console.error("GET /contacts:", err);
-                return res.status(500).json({ error: err.message });
+        if (company) {
+            filters.push("c.name LIKE ?");
+            params.push(`%${company}%`);
+        }
+        if (first_name) {
+            filters.push("ct.first_name LIKE ?");
+            params.push(`%${first_name}%`);
+        }
+        if (last_name) {
+            filters.push("ct.last_name LIKE ?");
+            params.push(`%${last_name}%`);
+        }
+        if (email) {
+            filters.push("ct.email LIKE ?");
+            params.push(`%${email}%`);
+        }
+        if (verified !== "") {
+            filters.push("ct.verified = ?");
+            params.push(Number(verified));
+        }
+
+        const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+
+        db.get(
+            `
+            SELECT COUNT(*) AS total
+            FROM contacts ct
+            LEFT JOIN companies c ON c.id = ct.company_id
+            ${where}
+            `,
+            params,
+            (err, countRow) => {
+                if (err) return res.status(500).json(err);
+
+                const total = countRow.total;
+                const pages = Math.max(Math.ceil(total / l), 1);
+
+                db.all(
+                    `
+                    SELECT
+                        ct.*,
+                        c.name AS company_name
+                    FROM contacts ct
+                    LEFT JOIN companies c ON c.id = ct.company_id
+                    ${where}
+                    ORDER BY ct.last_name, ct.first_name
+                    LIMIT ? OFFSET ?
+                    `,
+                    [...params, l, offset],
+                    (err, rows) => {
+                        if (err) return res.status(500).json(err);
+
+                        res.json({
+                            data: rows,
+                            page: p,
+                            pages,
+                            total
+                        });
+                    }
+                );
             }
-            res.json(rows);
-        });
+        );
     });
+
 
     router.post("/", (req, res) => {
         const {

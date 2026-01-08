@@ -12,34 +12,70 @@ module.exports = (db) => {
             name = "",
             nip = "",
             city = "",
-            account_manager = ""
+            account_manager = "",
+            page = 1,
+            limit = 20
         } = req.query;
 
-        const sql = `
-            SELECT *
-            FROM companies
-            WHERE name LIKE ?
-            AND nip LIKE ?
-            AND city LIKE ?
-            AND account_manager LIKE ?
-            ORDER BY id DESC
-        `;
+        const p = Math.max(Number(page) || 1, 1);
+        const l = Math.min(Number(limit) || 20, 100);
+        const offset = (p - 1) * l;
 
-        const params = [
-            `%${name}%`,
-            `%${nip}%`,
-            `%${city}%`,
-            `%${account_manager}%`
-        ];
+        const filters = [];
+        const params = [];
 
-        db.all(sql, params, (err, rows) => {
-            if (err) {
-                console.error("GET /companies:", err);
-                return res.status(500).json({ error: err.message });
+        if (name) {
+            filters.push("name LIKE ?");
+            params.push(`%${name}%`);
+        }
+        if (nip) {
+            filters.push("nip LIKE ?");
+            params.push(`%${nip}%`);
+        }
+        if (city) {
+            filters.push("city LIKE ?");
+            params.push(`%${city}%`);
+        }
+        if (account_manager) {
+            filters.push("account_manager LIKE ?");
+            params.push(`%${account_manager}%`);
+        }
+
+        const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
+
+        db.get(
+            `SELECT COUNT(*) as total FROM companies ${where}`,
+            params,
+            (err, countRow) => {
+                if (err) return res.status(500).json(err);
+
+                const total = countRow.total;
+                const pages = Math.max(Math.ceil(total / l), 1);
+
+                db.all(
+                    `
+                    SELECT *
+                    FROM companies
+                    ${where}
+                    ORDER BY name
+                    LIMIT ? OFFSET ?
+                    `,
+                    [...params, l, offset],
+                    (err, rows) => {
+                        if (err) return res.status(500).json(err);
+
+                        res.json({
+                            data: rows,
+                            page: p,
+                            pages,
+                            total
+                        });
+                    }
+                );
             }
-            res.json(rows);
-        });
+        );
     });
+
 
 
     router.post("/", (req, res) => {

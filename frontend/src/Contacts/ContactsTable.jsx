@@ -1,14 +1,41 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export default function ContactsTable({ filters, onEdit }) {
+export default function ContactsTable({ filters, page, onPageInfo, onEdit }) {
     const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        api.get("/contacts", { params: filters })
-            .then(res => setData(res.data || []))
-            .catch(() => setData([]));
-    }, [filters]);
+        let cancelled = false;
+        setLoading(true);
+
+        api.get("/contacts", {
+            params: {
+                ...filters,
+                page,
+                limit: 20
+            }
+        })
+            .then(res => {
+                if (cancelled) return;
+                setData(res.data.data || []);
+                onPageInfo(res.data.pages || 1);
+            })
+            .catch(() => {
+                if (!cancelled) setData([]);
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
+
+        return () => {
+            cancelled = true;
+        };
+    }, [filters, page]);
+
+    if (loading) {
+        return <div className="table-wrapper">Ładowanie…</div>;
+    }
 
     return (
         <div className="table-wrapper">

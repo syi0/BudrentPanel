@@ -1,30 +1,37 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export default function ContractorsTable({ filters, onEdit, refreshKey}) {
+export default function ContractorsTable({ filters, page, onPageInfo, onEdit }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
+        let cancelled = false;
+        setLoading(true);
 
-    api.get("/companies", { params: filters })
-        .then(res => {
-            if (!cancelled) setData(res.data || []);
+        api.get("/companies", {
+            params: {
+                ...filters,
+                page,
+                limit: 20
+            }
         })
-        .catch(() => {
-            if (!cancelled) setData([]);
-        })
-        .finally(() => {
-            if (!cancelled) setLoading(false);
-        });
+            .then(res => {
+                if (cancelled) return;
+                setData(res.data.data || []);
+                onPageInfo(res.data.pages || 1);
+            })
+            .catch(() => {
+                if (!cancelled) setData([]);
+            })
+            .finally(() => {
+                if (!cancelled) setLoading(false);
+            });
 
-    return () => {
-        cancelled = true;
-    };
-}, [filters, refreshKey]); 
-
+        return () => {
+            cancelled = true;
+        };
+    }, [filters, page]);
 
     if (loading) {
         return <div className="table-wrapper">Ładowanie…</div>;
