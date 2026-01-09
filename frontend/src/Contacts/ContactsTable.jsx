@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export default function ContactsTable({ filters, page, onPageInfo, onEdit }) {
+export default function ContactsTable({ filters, page, reload, onPageInfo, onEdit }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ export default function ContactsTable({ filters, page, onPageInfo, onEdit }) {
         return () => {
             cancelled = true;
         };
-    }, [filters, page]);
+    }, [filters, page, reload]); // reload DODANY
 
     if (loading) {
         return <div className="table-wrapper">Ładowanie…</div>;
@@ -50,6 +50,7 @@ export default function ContactsTable({ filters, page, onPageInfo, onEdit }) {
                         <th>Marketing</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     {data.length === 0 && (
                         <tr>
@@ -58,7 +59,11 @@ export default function ContactsTable({ filters, page, onPageInfo, onEdit }) {
                     )}
 
                     {data.map(c => (
-                        <tr key={c.id} onClick={() => onEdit(c)}>
+                        <tr
+                            key={c.id}
+                            onClick={() => onEdit(c)}
+                            style={{ cursor: "pointer" }}
+                        >
                             <td>{c.first_name || "—"}</td>
                             <td>{c.last_name || "—"}</td>
                             <td>{c.company_name || "—"}</td>

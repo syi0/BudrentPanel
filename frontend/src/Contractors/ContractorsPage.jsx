@@ -14,11 +14,15 @@ const EMPTY_FILTERS = {
 
 export default function ContractorsPage() {
     const [filters, setFilters] = useState(EMPTY_FILTERS);
+
     const [open, setOpen] = useState(false);
     const [editCompany, setEditCompany] = useState(null);
 
     const [page, setPage] = useState(1);
     const [pages, setPages] = useState(1);
+
+    // 🔑 trigger do wymuszenia odświeżenia tabeli (jak w Contacts)
+    const [reload, setReload] = useState(0);
 
     const handleFiltersChange = useCallback((f) => {
         setFilters(f);
@@ -38,7 +42,13 @@ export default function ContractorsPage() {
                 <div>
                     <div className="clients-header">
                         <h2>Kontrahenci</h2>
-                        <button onClick={() => setOpen(true)}>
+
+                        <button
+                            onClick={() => {
+                                setEditCompany(null); // WAŻNE
+                                setOpen(true);
+                            }}
+                        >
                             + Dodaj firmę
                         </button>
                     </div>
@@ -46,8 +56,12 @@ export default function ContractorsPage() {
                     <ContractorsTable
                         filters={filters}
                         page={page}
+                        reload={reload}
                         onPageInfo={setPages}
-                        onEdit={c => setEditCompany(c)}
+                        onEdit={(c) => {
+                            setEditCompany(c);
+                            setOpen(false);
+                        }}
                     />
 
                     <div className="pagination">
@@ -75,7 +89,12 @@ export default function ContractorsPage() {
             {(open || editCompany) && (
                 <CompanyModal
                     company={editCompany}
-                    onSuccess={() => setPage(1)}
+                    onSuccess={() => {
+                        setPage(1);
+                        setReload(r => r + 1); // 🔥 WYMUSZENIE ODŚWIEŻENIA
+                        setOpen(false);
+                        setEditCompany(null);
+                    }}
                     onClose={() => {
                         setOpen(false);
                         setEditCompany(null);

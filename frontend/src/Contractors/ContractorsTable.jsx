@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 
-export default function ContractorsTable({ filters, page, onPageInfo, onEdit }) {
+export default function ContractorsTable({ filters, page, reload, onPageInfo, onEdit }) {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -31,7 +31,7 @@ export default function ContractorsTable({ filters, page, onPageInfo, onEdit }) 
         return () => {
             cancelled = true;
         };
-    }, [filters, page]);
+    }, [filters, page, reload]);
 
     if (loading) {
         return <div className="table-wrapper">Ładowanie…</div>;

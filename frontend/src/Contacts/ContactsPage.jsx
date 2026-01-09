@@ -21,9 +21,12 @@ export default function ContactsPage() {
     const [page, setPage] = useState(1);
     const [pages, setPages] = useState(1);
 
+    // trigger do wymuszenia reloadu tabeli
+    const [reload, setReload] = useState(0);
+
     const handleFiltersChange = useCallback((f) => {
         setFilters(f);
-        setPage(1); // identycznie jak w Orders
+        setPage(1);
     }, []);
 
     return (
@@ -39,7 +42,13 @@ export default function ContactsPage() {
                 <div>
                     <div className="clients-header">
                         <h2>Osoby kontaktowe</h2>
-                        <button onClick={() => setOpen(true)}>
+
+                        <button
+                            onClick={() => {
+                                setEditContact(null); // WAŻNE
+                                setOpen(true);
+                            }}
+                        >
                             + Dodaj kontakt
                         </button>
                     </div>
@@ -47,8 +56,12 @@ export default function ContactsPage() {
                     <ContactsTable
                         filters={filters}
                         page={page}
+                        reload={reload}
                         onPageInfo={setPages}
-                        onEdit={c => setEditContact(c)}
+                        onEdit={(c) => {
+                            setEditContact(c);
+                            setOpen(false);
+                        }}
                     />
 
                     <div className="pagination">
@@ -76,7 +89,12 @@ export default function ContactsPage() {
             {(open || editContact) && (
                 <ContactModal
                     contact={editContact}
-                    onSuccess={() => setPage(1)}
+                    onSuccess={() => {
+                        setPage(1);
+                        setReload(r => r + 1); // WYMUSZENIE ODŚWIEŻENIA
+                        setOpen(false);
+                        setEditContact(null);
+                    }}
                     onClose={() => {
                         setOpen(false);
                         setEditContact(null);

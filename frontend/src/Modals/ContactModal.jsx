@@ -4,6 +4,7 @@ import "./Modal.css";
 
 export default function ContactModal({ contact, onClose, onSuccess }) {
     const [companies, setCompanies] = useState([]);
+
     const [form, setForm] = useState({
         company_id: contact?.company_id || "",
         first_name: contact?.first_name || "",
@@ -15,7 +16,10 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
 
     useEffect(() => {
         api.get("/companies")
-            .then(res => setCompanies(res.data || []))
+            .then(res => {
+                const list = res.data?.data;
+                setCompanies(Array.isArray(list) ? list : []);
+            })
             .catch(() => setCompanies([]));
     }, []);
 
@@ -52,10 +56,7 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
     const remove = async () => {
         if (!contact?.id) return;
 
-        const ok = window.confirm(
-            "Czy na pewno chcesz usunąć ten kontakt?"
-        );
-        if (!ok) return;
+        if (!window.confirm("Czy na pewno chcesz usunąć ten kontakt?")) return;
 
         try {
             await api.delete(`/contacts/${contact.id}`);
@@ -67,7 +68,7 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
         }
     };
 
-    if (companies.length === 0) {
+    if (!Array.isArray(companies) || companies.length === 0) {
         return (
             <div className="modal-backdrop">
                 <div className="modal">
