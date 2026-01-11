@@ -20,8 +20,6 @@ export default function ContractorsPage() {
 
     const [page, setPage] = useState(1);
     const [pages, setPages] = useState(1);
-
-    // 🔑 trigger do wymuszenia odświeżenia tabeli (jak w Contacts)
     const [reload, setReload] = useState(0);
 
     const handleFiltersChange = useCallback((f) => {
@@ -45,7 +43,7 @@ export default function ContractorsPage() {
 
                         <button
                             onClick={() => {
-                                setEditCompany(null); // WAŻNE
+                                setEditCompany(null); 
                                 setOpen(true);
                             }}
                         >
@@ -91,7 +89,7 @@ export default function ContractorsPage() {
                     company={editCompany}
                     onSuccess={() => {
                         setPage(1);
-                        setReload(r => r + 1); // 🔥 WYMUSZENIE ODŚWIEŻENIA
+                        setReload(r => r + 1); 
                         setOpen(false);
                         setEditCompany(null);
                     }}

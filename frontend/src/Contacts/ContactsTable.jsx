@@ -31,7 +31,7 @@ export default function ContactsTable({ filters, page, reload, onPageInfo, onEdi
         return () => {
             cancelled = true;
         };
-    }, [filters, page, reload]); // reload DODANY
+    }, [filters, page, reload]); 
 
     if (loading) {
         return <div className="table-wrapper">Ładowanie…</div>;

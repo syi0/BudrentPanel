@@ -20,8 +20,6 @@ export default function ContactsPage() {
 
     const [page, setPage] = useState(1);
     const [pages, setPages] = useState(1);
-
-    // trigger do wymuszenia reloadu tabeli
     const [reload, setReload] = useState(0);
 
     const handleFiltersChange = useCallback((f) => {
@@ -45,7 +43,7 @@ export default function ContactsPage() {
 
                         <button
                             onClick={() => {
-                                setEditContact(null); // WAŻNE
+                                setEditContact(null); 
                                 setOpen(true);
                             }}
                         >
@@ -91,7 +89,7 @@ export default function ContactsPage() {
                     contact={editContact}
                     onSuccess={() => {
                         setPage(1);
-                        setReload(r => r + 1); // WYMUSZENIE ODŚWIEŻENIA
+                        setReload(r => r + 1);
                         setOpen(false);
                         setEditContact(null);
                     }}
