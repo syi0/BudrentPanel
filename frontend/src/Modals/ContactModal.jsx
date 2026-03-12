@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api";
 import "./Modal.css";
+import Select from "react-select";
 
 export default function ContactModal({ contact, onClose, onSuccess }) {
     const [companies, setCompanies] = useState([]);
@@ -13,6 +14,11 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
         verified: !!contact?.verified,
         marketing_consent: !!contact?.marketing_consent
     });
+
+    const companyOptions = companies.map(c => ({
+        value: c.id,
+        label: c.name
+    }));
 
     useEffect(() => {
         api.get("/companies")
@@ -85,19 +91,16 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
             <div className="modal">
                 <h3>{contact ? "Edytuj kontakt" : "Dodaj kontakt"}</h3>
 
-                <select
-                    value={form.company_id}
-                    onChange={e =>
-                        setForm({ ...form, company_id: e.target.value })
+                <Select
+                    options={companyOptions}
+                    placeholder="— wybierz lub wpisz firmę —"
+                    value={companyOptions.find(o => o.value === form.company_id) || null}
+                    onChange={option =>
+                        setForm({ ...form, company_id: option?.value || "" })
                     }
-                >
-                    <option value="">— wybierz firmę —</option>
-                    {companies.map(c => (
-                        <option key={c.id} value={c.id}>
-                            {c.name}
-                        </option>
-                    ))}
-                </select>
+                    isSearchable
+                    maxMenuHeight={200}
+                />
 
                 <input
                     placeholder="Imię"
