@@ -13,7 +13,7 @@ export default function MainPanel() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get("http://localhost:3001/api/me")
+        axios.get("http://87.106.187.114:3001/api/me")
             .then(res => {
                 const user = res.data;
 

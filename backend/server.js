@@ -15,7 +15,7 @@ app.use(helmet({
 }));
 
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: "http://87.106.187.114",
     credentials: true
 }));
 
@@ -122,7 +122,9 @@ app.use("/api", settingsRoutes);
 app.use("/api/processes", processesRoutes);
 
 
-app.listen(3001, () => console.log("Backend running on port 3001"));
+app.listen(3001, "0.0.0.0", () =>
+    console.log("Backend running on port 3001")
+);
 
 
 

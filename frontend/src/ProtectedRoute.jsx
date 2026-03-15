@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
     const [auth, setAuth] = useState(false);
 
     useEffect(() => {
-        axios.get("http://localhost:3001/session")
+        axios.get("http://87.106.187.114:3001/session")
             .then(res => {
                 setAuth(res.data.logged);
                 setLoading(false);

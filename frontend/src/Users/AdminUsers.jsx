@@ -12,7 +12,7 @@ export default function AdminUsers({ users, setUsers }) {
     const addUser = async () => {
         if (!username || !password) return;
 
-        const res = await axios.post("http://localhost:3001/api/users", {
+        const res = await axios.post("http://87.106.187.114:3001/api/users", {
             username,
             password,
             role,
@@ -32,7 +32,7 @@ export default function AdminUsers({ users, setUsers }) {
     const removeUser = async (id) => {
         if (!window.confirm("Usunąć użytkownika?")) return;
 
-        await axios.delete(`http://localhost:3001/api/users/${id}`);
+        await axios.delete(`http://87.106.187.114:3001/api/users/${id}`);
         setUsers(users.filter(u => u.id !== id));
     };
 
@@ -86,7 +86,7 @@ export default function AdminUsers({ users, setUsers }) {
                             if (!pwd) return;
 
                             await axios.put(
-                                `http://localhost:3001/api/users/${u.id}/password`,
+                                `http://87.106.187.114:3001/api/users/${u.id}/password`,
                                 { newPassword: pwd }
                             );
 

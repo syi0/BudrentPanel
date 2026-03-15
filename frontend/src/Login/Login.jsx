@@ -15,7 +15,7 @@ export default function LoginPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:3001/login", { username, password });
+            await axios.post("http://87.106.187.114:3001/login", { username, password });
             nav("/panel");
         } catch {
             setError("Nieprawidłowe dane logowania");

@@ -11,7 +11,7 @@ export default function ProfileSection({ me, setMe }) {
     const [saved, setSaved] = useState(false);
 
     const save = async () => {
-        await axios.put("http://localhost:3001/api/me", {
+        await axios.put("http://87.106.187.114:3001/api/me", {
             first_name: firstName,
             last_name: lastName
         });
@@ -61,7 +61,7 @@ export default function ProfileSection({ me, setMe }) {
 
             <button
                 onClick={async () => {
-                    await axios.put("http://localhost:3001/api/me/password", {
+                    await axios.put("http://87.106.187.114:3001/api/me/password", {
                         currentPassword,
                         newPassword
                     });

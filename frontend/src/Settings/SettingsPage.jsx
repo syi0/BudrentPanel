@@ -14,12 +14,12 @@ export default function SettingsPage() {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        axios.get("http://localhost:3001/api/me")
+        axios.get("http://87.106.187.114:3001/api/me")
             .then(res => {
                 setMe(res.data);
 
                 if (res.data.role === "admin") {
-                    return axios.get("http://localhost:3001/api/users");
+                    return axios.get("http://87.106.187.114:3001/api/users");
                 }
             })
             .then(res => {

@@ -15,7 +15,7 @@ export default function Navbar() {
     const dropdownRef = useRef(null);
 
     const logout = async () => {
-        await axios.post("http://localhost:3001/logout", {}, { withCredentials: true });
+        await axios.post("http://87.106.187.114:3001/logout", {}, { withCredentials: true });
         nav("/");
     };
 
