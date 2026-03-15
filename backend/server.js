@@ -121,6 +121,13 @@ app.use("/api/contacts", contactsRoutes);
 app.use("/api", settingsRoutes);
 app.use("/api/processes", processesRoutes);
 
+const path = require("path");
+
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist/index.html"));
+});
 
 app.listen(3001, "0.0.0.0", () =>
     console.log("Backend running on port 3001")
