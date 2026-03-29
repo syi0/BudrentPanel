@@ -71,11 +71,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const userOptions = users.map((u) => ({ value: u.id, label: u.name }));
   const companyOptions = companies.map((c) => ({ value: c.id, label: c.name }));
   const contactOptions = contacts
-    .filter(
-      (c) =>
-        clientType === "individual" || !form.company_id || c.company_id === form.company_id
-    )
-    .map((c) => ({ value: c.id, label: c.name }));
+  .filter(c => {
+    if (clientType === "individual") return true;
+    return c.company_id === form.company_id;
+  })
+  .map(c => ({ value: c.id, label: c.name }));
 
   const save = async () => {
     try {
