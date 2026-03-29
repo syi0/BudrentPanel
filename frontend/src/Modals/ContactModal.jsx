@@ -13,7 +13,7 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
     email: "",
     phone: "",
     verified: false,
-    marketing_consent: false
+    marketing_consent: false,
   });
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
         email: contact.email || "",
         phone: contact.phone || "",
         verified: !!contact.verified,
-        marketing_consent: !!contact.marketing_consent
+        marketing_consent: !!contact.marketing_consent,
       });
     } else {
       setForm({
@@ -44,21 +44,42 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
         email: "",
         phone: "",
         verified: false,
-        marketing_consent: false
+        marketing_consent: false,
       });
     }
   }, [contact]);
 
   const companyOptions = companies.map(c => ({
     value: c.id,
-    label: c.name
+    label: c.name,
   }));
 
-  const save = async () => {
-    if (!form.company_id) {
-      alert("Musisz wybrać firmę");
-      return;
+  const validateForm = () => {
+    const requiredFields = [
+      { key: "company_id", label: "Firma" },
+      { key: "first_name", label: "Imię" },
+      { key: "last_name", label: "Nazwisko" },
+      { key: "email", label: "Email" },
+    ];
+
+    for (const field of requiredFields) {
+      if (!form[field.key]?.toString().trim()) {
+        alert(`Pole "${field.label}" jest wymagane`);
+        return false;
+      }
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      alert("Podaj poprawny adres email");
+      return false;
+    }
+
+    return true;
+  };
+
+  const save = async () => {
+    if (!validateForm()) return;
 
     const payload = {
       company_id: form.company_id,
@@ -67,7 +88,7 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
       email: form.email.trim(),
       phone: form.phone.trim() || null,
       verified: form.verified ? 1 : 0,
-      marketing_consent: form.marketing_consent ? 1 : 0
+      marketing_consent: form.marketing_consent ? 1 : 0,
     };
 
     try {
@@ -76,7 +97,6 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
       } else {
         await api.post("/contacts", payload);
       }
-
       onSuccess?.();
       onClose();
     } catch (err) {
