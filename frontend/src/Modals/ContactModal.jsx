@@ -127,6 +127,13 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
                     }
                 />
 
+                <input
+                    type="text"
+                    placeholder="Telefon"
+                    value={form.phone || ""}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                />
+
                 <label>
                     <input
                         type="checkbox"

@@ -14,6 +14,8 @@ export default function OrdersPage() {
     const [page, setPage] = useState(1);
     const [pages, setPages] = useState(1);
 
+    const [reload, setReload] = useState(0);
+
     const handleFiltersChange = useCallback((f) => {
         setFilters(f);
         setPage(1);
@@ -29,8 +31,9 @@ export default function OrdersPage() {
                 }
             });
 
-            setOrders(res.data.data);
-            setPages(res.data.pages);
+            setOrders(res.data.data || []);
+            setPages(res.data.pages || 1);
+
         } catch (err) {
             console.error("Błąd pobierania zleceń:", err);
         }
@@ -38,8 +41,7 @@ export default function OrdersPage() {
 
     useEffect(() => {
         fetchOrders();
-    }, [fetchOrders]);
-
+    }, [fetchOrders, page, reload]);
 
     return (
         <div className="orders-page">
@@ -75,10 +77,10 @@ export default function OrdersPage() {
                     onClose={() => setModalOpen(false)}
                     onSaved={() => {
                         setModalOpen(false);
-                        fetchOrders(); 
+                        setPage(1);
+                        setReload(r => r + 1);
                     }}
                 />
-
             )}
 
             <div className="pagination">

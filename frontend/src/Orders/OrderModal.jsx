@@ -21,14 +21,33 @@ export default function OrderModal({ order, onClose, onSaved }) {
     const [contacts, setContacts] = useState([]);
     const [users, setUsers] = useState([]);
 
+    const [loading, setLoading] = useState(false);
+
     useEffect(() => {
 
-        api.get("/companies2").then(res => setCompanies(res.data));
-        api.get("/contacts2").then(res => setContacts(res.data));
-        api.get("/users2").then(res => setUsers(res.data));
+        let cancelled = false;
+
+        const loadData = async () => {
+            try {
+                const [cRes, ctRes, uRes] = await Promise.all([
+                    api.get("/companies2"),
+                    api.get("/contacts2"),
+                    api.get("/users2")
+                ]);
+
+                if (cancelled) return;
+
+                setCompanies(cRes.data || []);
+                setContacts(ctRes.data || []);
+                setUsers(uRes.data || []);
+            } catch (err) {
+                console.error("Błąd ładowania danych:", err);
+            }
+        };
+
+        loadData();
 
         if (order) {
-
             setForm({
                 company_id: order.company_id || "",
                 contact_id: order.contact_id || "",
@@ -42,7 +61,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
             setClientType(order.company_id ? "company" : "individual");
 
         } else {
-
             setClientType("company");
 
             setForm({
@@ -55,6 +73,10 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 address: ""
             });
         }
+
+        return () => {
+            cancelled = true;
+        };
 
     }, [order]);
 
@@ -74,7 +96,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
             c =>
                 clientType === "individual" ||
                 !form.company_id ||
-                c.company_id == form.company_id
+                c.company_id === form.company_id
         )
         .map(c => ({
             value: c.id,
@@ -86,10 +108,13 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
         try {
 
+            setLoading(true);
+
             const payload = { ...form };
 
             if (clientType === "company" && !payload.company_id) {
                 alert("Wybierz firmę dla zlecenia firmowego");
+                setLoading(false);
                 return;
             }
 
@@ -113,11 +138,15 @@ export default function OrderModal({ order, onClose, onSaved }) {
             }
 
             onSaved();
+            onClose();
 
         } catch (err) {
 
             console.error("Błąd zapisu procesu:", err);
+            alert("Błąd zapisu");
 
+        } finally {
+            setLoading(false);
         }
 
     };
@@ -133,7 +162,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
                 <div className="modal-grid">
 
-
                     <div className="modal-col">
 
                         <label>Odpowiedzialny</label>
@@ -141,7 +169,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
                         <Select
                             options={userOptions}
                             placeholder="Wybierz użytkownika"
-                            value={userOptions.find(o => o.value == form.responsible_user_id) || null}
+                            value={userOptions.find(o => o.value === form.responsible_user_id) ?? null}
                             onChange={option =>
                                 setForm({
                                     ...form,
@@ -149,9 +177,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
                                 })
                             }
                             isSearchable
-                            maxMenuHeight={200}
                         />
-
 
                         <div className="toggle-group">
 
@@ -173,17 +199,15 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
                         </div>
 
-
                         {clientType === "company" && (
 
                             <>
-
                                 <label>Nazwa firmy</label>
 
                                 <Select
                                     options={companyOptions}
-                                    placeholder="Wybierz lub wpisz firmę"
-                                    value={companyOptions.find(o => o.value == form.company_id) || null}
+                                    placeholder="Wybierz firmę"
+                                    value={companyOptions.find(o => o.value === form.company_id) ?? null}
                                     onChange={option =>
                                         setForm({
                                             ...form,
@@ -192,20 +216,16 @@ export default function OrderModal({ order, onClose, onSaved }) {
                                         })
                                     }
                                     isSearchable
-                                    maxMenuHeight={200}
                                 />
-
                             </>
-
                         )}
 
-
-                        <label>Nazwa osoby kontaktowej</label>
+                        <label>Osoba kontaktowa</label>
 
                         <Select
                             options={contactOptions}
-                            placeholder="Wybierz osobę kontaktową"
-                            value={contactOptions.find(o => o.value == form.contact_id) || null}
+                            placeholder="Wybierz osobę"
+                            value={contactOptions.find(o => o.value === form.contact_id) ?? null}
                             onChange={option =>
                                 setForm({
                                     ...form,
@@ -213,9 +233,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
                                 })
                             }
                             isSearchable
-                            maxMenuHeight={200}
                         />
-
 
                         <label>Adres</label>
 
@@ -231,8 +249,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
                         />
 
                     </div>
-
-
 
                     <div className="modal-col">
 
@@ -265,7 +281,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
                 </div>
 
-
                 <div className="modal-footer">
 
                     <select
@@ -283,31 +298,28 @@ export default function OrderModal({ order, onClose, onSaved }) {
                         <option value="ukonczone">Ukończone</option>
                     </select>
 
-
                     {order?.id && (
-
                         <button
                             className="danger-btn"
                             onClick={async () => {
-
-                                if (!confirm("Czy na pewno chcesz usunąć to zlecenie?")) return;
-
+                                if (!confirm("Czy na pewno chcesz usunąć?")) return;
                                 await api.delete(`/processes/${order.id}`);
-
                                 onSaved();
-
+                                onClose();
                             }}
                         >
                             Usuń
                         </button>
-
                     )}
-
 
                     <div className="modal-actions">
 
-                        <button className="primary-btn" onClick={save}>
-                            Zapisz
+                        <button
+                            className="primary-btn"
+                            onClick={save}
+                            disabled={loading}
+                        >
+                            {loading ? "Zapisywanie..." : "Zapisz"}
                         </button>
 
                         <button className="secondary-btn" onClick={onClose}>
@@ -321,7 +333,5 @@ export default function OrderModal({ order, onClose, onSaved }) {
             </div>
 
         </div>
-
     );
-
 }

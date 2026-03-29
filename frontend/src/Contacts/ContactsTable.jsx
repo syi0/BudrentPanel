@@ -46,6 +46,7 @@ export default function ContactsTable({ filters, page, reload, onPageInfo, onEdi
                         <th>Nazwisko</th>
                         <th>Firma</th>
                         <th>Email</th>
+                        <th>Telefon</th>
                         <th>Zw.</th>
                         <th>Marketing</th>
                     </tr>
@@ -68,6 +69,7 @@ export default function ContactsTable({ filters, page, reload, onPageInfo, onEdi
                             <td>{c.last_name || "—"}</td>
                             <td>{c.company_name || "—"}</td>
                             <td>{c.email || "—"}</td>
+                            <td>{c.phone || "—"}</td>
                             <td>{c.verified ? "✔" : "✖"}</td>
                             <td>{c.marketing_consent ? "✔" : "✖"}</td>
                         </tr>

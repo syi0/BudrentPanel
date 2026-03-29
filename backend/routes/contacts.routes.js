@@ -92,6 +92,7 @@ module.exports = (db) => {
             first_name,
             last_name,
             email,
+            phone,
             verified = 0,
             marketing_consent = 0
         } = req.body;
@@ -102,13 +103,14 @@ module.exports = (db) => {
 
         db.run(
             `INSERT INTO contacts
-             (company_id, first_name, last_name, email, verified, marketing_consent)
-             VALUES (?, ?, ?, ?, ?, ?)`,
+             (company_id, first_name, last_name, email, phone, verified, marketing_consent)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
             [
                 company_id,
                 first_name || null,
                 last_name || null,
                 email || null,
+                phone || null,
                 verified,
                 marketing_consent
             ],
@@ -129,6 +131,7 @@ module.exports = (db) => {
             first_name,
             last_name,
             email,
+            phone,
             verified = 0,
             marketing_consent = 0
         } = req.body;
@@ -143,6 +146,7 @@ module.exports = (db) => {
                 first_name = ?,
                 last_name = ?,
                 email = ?,
+                phone = ?,
                 verified = ?,
                 marketing_consent = ?
              WHERE id = ?`,
@@ -151,6 +155,7 @@ module.exports = (db) => {
                 first_name || null,
                 last_name || null,
                 email || null,
+                phone || null,
                 verified,
                 marketing_consent,
                 id
