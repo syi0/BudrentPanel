@@ -70,12 +70,19 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
   const userOptions = users.map((u) => ({ value: u.id, label: u.name }));
   const companyOptions = companies.map((c) => ({ value: c.id, label: c.name }));
-  const contactOptions = contacts
-  .filter(c => {
-    if (clientType === "individual") return true;
-    return c.company_id === form.company_id;
-  })
-  .map(c => ({ value: c.id, label: c.name }));
+  const contactOptions = [
+  ...(form.contact_id
+    ? contacts
+        .filter((c) => c.id === form.contact_id)
+        .map((c) => ({ value: c.id, label: c.name }))
+    : []),
+  ...contacts
+    .filter((c) => {
+      if (clientType === "individual") return true;
+      return c.company_id === form.company_id;
+    })
+    .map((c) => ({ value: c.id, label: c.name })),
+];
 
   const save = async () => {
     try {
@@ -155,6 +162,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             <label>Osoba kontaktowa</label>
             <Select
+              key={form.company_id} 
               options={contactOptions}
               placeholder="Wybierz osobę"
               value={contactOptions.find((o) => o.value === form.contact_id) || null}
