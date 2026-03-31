@@ -35,8 +35,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
           api.get("/users2"),
         ]);
         if (cancelled) return;
-        setCompanies(cRes.data.data || []);
-        setContacts(ctRes.data.data || []);
+        setCompanies(cRes.data || []);
+        setContacts(ctRes.data || []);
         setUsers(uRes.data || []);
       } catch (err) {
         console.error(err);
@@ -61,7 +61,10 @@ export default function OrderModal({ order, onClose, onSaved }) {
     return () => (cancelled = true);
   }, [order]);
 
-  const userOptions = users.map(u => ({ value: u.id, label: u.name }));
+  const userOptions = users.map(u => ({
+    value: u.id,
+    label: [u.first_name, u.last_name].filter(Boolean).join(" ")
+  }));
   const companyOptions = companies.map(c => ({ value: c.id, label: c.name }));
 
   const contactOptions = contacts

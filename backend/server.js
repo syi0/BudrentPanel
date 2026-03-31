@@ -127,9 +127,9 @@ app.get("/api/contacts2", (req, res) => {
 
 app.get("/api/users2", (req, res) => {
     db.all(`
-        SELECT id, first_name, last_name, name
+        SELECT id, first_name, last_name
         FROM users 
-        ORDER BY name
+        ORDER BY first_name, last_name
     `, [], (e, r) => {
         if (e) {
             console.error(e);
