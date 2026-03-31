@@ -3,7 +3,6 @@ const express = require("express");
 module.exports = (db) => {
   const router = express.Router();
 
-  // POBIERANIE ZLECEŃ
   router.get("/", (req, res) => {
     const { company, status } = req.query;
     const page = Math.max(Number(req.query.page) || 1, 1);
@@ -19,23 +18,23 @@ module.exports = (db) => {
     `;
 
     const params = [];
+
     if (company) {
       baseSql += ` AND (c.name LIKE ? OR ct.first_name LIKE ? OR ct.last_name LIKE ?)`;
       params.push(`%${company}%`, `%${company}%`, `%${company}%`);
     }
+
     if (status) {
       baseSql += " AND p.status = ?";
       params.push(status);
     }
 
-    // LICZBA STRON
     db.get(`SELECT COUNT(*) as total ${baseSql}`, params, (err, countRow) => {
       if (err) {
         console.error("COUNT /processes:", err);
         return res.sendStatus(500);
       }
 
-      // DANE
       db.all(
         `
         SELECT
@@ -75,7 +74,6 @@ module.exports = (db) => {
     });
   });
 
-  // DODAWANIE ZLECENIA
   router.post("/", (req, res) => {
     try {
       let {
@@ -100,51 +98,65 @@ module.exports = (db) => {
           : Number(advance_amount);
 
       const now = new Date();
-      const day = String(now.getDate()).padStart(2, "0");
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const year = String(now.getFullYear()).slice(-2);
       const createdAt = now.toISOString();
+      const yearFull = now.getFullYear();
 
-      // POBIERZ ILOŚĆ ZLECEŃ DO GENEROWANIA NUMERU
-      db.get("SELECT COUNT(*) as count FROM processes", [], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        const next = row.count + 1;
-        const processNumber = `SRW/${year}${month}${day}/${next}`;
-
-        db.run(
-          `
-          INSERT INTO processes
-          (process_number, company_id, contact_id, responsible_user_id, description, advance_amount, status, address, created_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `,
-          [
-            processNumber,
-            company_id,
-            contact_id,
-            responsible_user_id,
-            description,
-            advance_amount,
-            status,
-            address,
-            createdAt,
-          ],
-          function (err) {
-            if (err) {
-              console.error("POST /processes:", err);
-              return res.status(500).json({ error: err.message });
-            }
-
-            res.status(201).json({ id: this.lastID });
+      db.get(
+        `
+        SELECT MAX(
+          CAST(
+            SUBSTR(process_number, 5, INSTR(process_number, '/') - 5
+          ) AS INTEGER)
+        ) as max
+        FROM processes
+        WHERE process_number LIKE ?
+        `,
+        [`SRW/%/${yearFull}`],
+        (err, row) => {
+          if (err) {
+            console.error("MAX /processes:", err);
+            return res.status(500).json({ error: err.message });
           }
-        );
-      });
+
+          const next = (row.max || 0) + 1;
+          const processNumber = `SRW/${next}/${yearFull}`;
+
+          db.run(
+            `
+            INSERT INTO processes
+            (process_number, company_id, contact_id, responsible_user_id, description, advance_amount, status, address, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            `,
+            [
+              processNumber,
+              company_id,
+              contact_id,
+              responsible_user_id,
+              description,
+              advance_amount,
+              status,
+              address,
+              createdAt,
+            ],
+            function (err) {
+              if (err) {
+                console.error("POST /processes:", err);
+                return res.status(500).json({ error: err.message });
+              }
+
+              res.status(201).json({
+                id: this.lastID,
+                process_number: processNumber,
+              });
+            }
+          );
+        }
+      );
     } catch (e) {
       console.error("POST /processes crash:", e);
       res.status(500).json({ error: "Internal server error" });
     }
   });
-
-  // EDYCJA ZLECENIA
   router.put("/:id", (req, res) => {
     try {
       const {
@@ -193,7 +205,6 @@ module.exports = (db) => {
     }
   });
 
-  // USUWANIE ZLECENIA
   router.delete("/:id", (req, res) => {
     db.run("DELETE FROM processes WHERE id = ?", [req.params.id], (err) => {
       if (err) {
