@@ -80,14 +80,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
       const payload = {
         ...form,
-        company_id: form.company_id || null,
-        contact_id: form.contact_id || null,
-        responsible_user_id: form.responsible_user_id || null,
-        advance_amount:
-          form.advance_amount === "" ? null : Number(form.advance_amount),
+        company_id: clientType === "individual" ? null : form.company_id ? Number(form.company_id) : null,
+        contact_id: form.contact_id ? Number(form.contact_id) : null,
+        responsible_user_id: form.responsible_user_id ? Number(form.responsible_user_id) : null,
+        advance_amount: form.advance_amount === "" ? null : Number(form.advance_amount),
       };
-
-      if (clientType === "individual") payload.company_id = null;
 
       if (order?.id) {
         await api.put(`/processes/${order.id}`, payload);

@@ -85,10 +85,10 @@ module.exports = (db) => {
         status,
         address,
       } = req.body;
+      company_id = company_id ? Number(company_id) : null;
+      contact_id = contact_id ? Number(contact_id) : null;
+      responsible_user_id = responsible_user_id ? Number(responsible_user_id) : null;
 
-      company_id = company_id || null;
-      contact_id = contact_id || null;
-      responsible_user_id = responsible_user_id || null;
       description = description || "";
       status = status || "nowy";
       address = typeof address === "string" ? address : "";
@@ -96,6 +96,10 @@ module.exports = (db) => {
         advance_amount === "" || advance_amount === undefined
           ? null
           : Number(advance_amount);
+
+      if (!company_id && !contact_id) {
+        return res.status(400).json({ error: "Indywidualny klient musi mieć osobę kontaktową" });
+      }
 
       const now = new Date();
       const createdAt = now.toISOString();
@@ -156,7 +160,6 @@ module.exports = (db) => {
       console.error("POST /processes crash:", e);
       res.status(500).json({ error: "Internal server error" });
     }
-    console.log("BODY:", req.body);
   });
   router.put("/:id", (req, res) => {
     try {
