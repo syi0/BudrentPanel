@@ -65,7 +65,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const companyOptions = companies.map(c => ({ value: c.id, label: c.name }));
 
   const contactOptions = contacts
-    .filter(c => clientType === "individual" || c.company_id === form.company_id)
+    .filter(c => clientType === "individual" || c.company_id === Number(form.company_id)
     .map(c => ({
       value: c.id,
       label: [c.first_name, c.last_name].filter(Boolean).join(" ")
