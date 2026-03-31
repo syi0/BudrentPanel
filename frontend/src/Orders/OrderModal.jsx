@@ -195,37 +195,39 @@ export default function OrderModal({ order, onClose, onSaved }) {
         <div className="modal-footer">
 
           {order?.id && (
-            <button
-              className="delete-btn"
-              onClick={async () => {
-                if (!window.confirm("Na pewno usunąć?")) return;
+            <>
+              <button
+                className="delete-btn"
+                onClick={async () => {
+                  if (!window.confirm("Na pewno usunąć?")) return;
 
-                try {
-                  await api.delete(`/processes/${order.id}`);
-                  onSaved();
-                  onClose();
-                } catch (err) {
-                  console.error(err);
-                  alert("Błąd usuwania");
+                  try {
+                    await api.delete(`/processes/${order.id}`);
+                    onSaved();
+                    onClose();
+                  } catch (err) {
+                    console.error(err);
+                    alert("Błąd usuwania");
+                  }
+                }}
+              >
+                Usuń
+              </button>
+
+              <button
+                onClick={() =>
+                  generateProtocol({
+                    form,
+                    company: selectedCompany,
+                    contact: selectedContact,
+                    processNumber: order?.process_number
+                  })
                 }
-              }}
-            >
-              Usuń
-            </button>
+              >
+                Protokół
+              </button>
+            </>
           )}
-
-          <button
-            onClick={() =>
-              generateProtocol({
-                form,
-                company: selectedCompany,
-                contact: selectedContact,
-                processNumber: order?.process_number
-              })
-            }
-          >
-            Protokół
-          </button>
 
           <button onClick={save} disabled={loading}>
             {loading ? "Zapisywanie..." : "Zapisz"}
