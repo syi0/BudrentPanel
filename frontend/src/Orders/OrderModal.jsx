@@ -21,8 +21,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const selectedContact = contacts.find(c => c.id === form.contact_id);
-  const selectedCompany = companies.find(c => c.id === form.company_id);
+  const selectedContact = contacts.find(c => c.id === Number(form.contact_id));
+  const selectedCompany = companies.find(c => c.id === Number(form.company_id));
 
   useEffect(() => {
     let cancelled = false;
@@ -35,8 +35,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
           api.get("/users2"),
         ]);
         if (cancelled) return;
-        setCompanies(cRes.data || []);
-        setContacts(ctRes.data || []);
+        setCompanies(cRes.data.data || []);
+        setContacts(ctRes.data.data || []);
         setUsers(uRes.data || []);
       } catch (err) {
         console.error(err);
