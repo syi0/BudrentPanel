@@ -95,21 +95,48 @@ app.post("/logout", (req, res) => {
 });
 
 app.get("/api/companies2", (req, res) => {
-    db.all(`SELECT id, name FROM companies`, [], (e, r) => res.json(r));
+    db.all(`SELECT id, name FROM companies ORDER BY name`, [], (e, r) => {
+        if (e) {
+            console.error(e);
+            return res.status(500).json({ error: e.message });
+        }
+        res.json(r);
+    });
 });
 
 app.get("/api/contacts2", (req, res) => {
     db.all(`
-        SELECT id, first_name || ' ' || last_name AS name, company_id
-        FROM contacts
-    `, [], (e, r) => res.json(r));
+        SELECT 
+            id, 
+            first_name, 
+            last_name, 
+            phone, 
+            email,
+            company_id
+        FROM contacts 
+        ORDER BY last_name, first_name
+    `, [], (e, r) => {
+        if (e) {
+            console.error(e);
+            return res.status(500).json({ error: e.message });
+        }
+        console.log("Contacts2:", r.length); 
+        res.json(r);
+    });
 });
 
 app.get("/api/users2", (req, res) => {
     db.all(`
-        SELECT id, first_name || ' ' || last_name AS name
-        FROM users
-    `, [], (e, r) => res.json(r));
+        SELECT id, first_name, last_name, name
+        FROM users 
+        ORDER BY name
+    `, [], (e, r) => {
+        if (e) {
+            console.error(e);
+            return res.status(500).json({ error: e.message });
+        }
+        res.json(r);
+    });
 });
 
 const companiesRoutes = require("./routes/companies.routes")(db);
