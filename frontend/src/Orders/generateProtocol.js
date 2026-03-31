@@ -1,10 +1,9 @@
 import html2pdf from "html2pdf.js";
+export default function generateProtocol({ form, company, contact, processNumber }) {
 
-export default function generateProtocol({ form, company, contact }) {
   const today = new Date().toLocaleDateString("pl-PL");
 
-  // 🔢 PROSTY NUMER (możesz potem podpiąć backend)
-  const protocolNumber = `SRW/${Math.floor(Math.random() * 1000)}/${new Date().getFullYear()}`;
+  const protocolNumber = processNumber || "BRAK NUMERU";
 
   const html = `
   <div style="font-family: Arial; padding: 20px; font-size: 12px;">

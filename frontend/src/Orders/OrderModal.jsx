@@ -68,7 +68,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
     .filter(c => clientType === "individual" || c.company_id === form.company_id)
     .map(c => ({
       value: c.id,
-      label: `${c.first_name || ""}${c.last_name ? " " + c.last_name : ""}`.trim()
+      label: [c.first_name, c.last_name].filter(Boolean).join(" ")
     }));
 
   const save = async () => {
@@ -191,12 +191,33 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
         <div className="modal-footer">
 
+          {order?.id && (
+            <button
+              className="delete-btn"
+              onClick={async () => {
+                if (!window.confirm("Na pewno usunąć?")) return;
+
+                try {
+                  await api.delete(`/processes/${order.id}`);
+                  onSaved();
+                  onClose();
+                } catch (err) {
+                  console.error(err);
+                  alert("Błąd usuwania");
+                }
+              }}
+            >
+              Usuń
+            </button>
+          )}
+
           <button
             onClick={() =>
               generateProtocol({
                 form,
                 company: selectedCompany,
                 contact: selectedContact,
+                processNumber: order?.process_number
               })
             }
           >
