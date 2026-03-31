@@ -109,8 +109,8 @@ module.exports = (db) => {
         `
         SELECT MAX(
           CAST(
-            SUBSTR(process_number, 5, INSTR(process_number, '/') - 5
-          ) AS INTEGER)
+            SUBSTR(process_number, 5, INSTR(process_number, '/') - 5) AS INTEGER
+          )
         ) as max
         FROM processes
         WHERE process_number LIKE ?
@@ -122,7 +122,8 @@ module.exports = (db) => {
             return res.status(500).json({ error: err.message });
           }
 
-          const next = (row.max || 0) + 1;
+          // Bezpieczna konwersja: jeśli row.max jest null, ustaw 0
+          const next = (row?.max || 0) + 1;
           const processNumber = `SRW/${next}/${yearFull}`;
 
           db.run(
@@ -133,13 +134,13 @@ module.exports = (db) => {
             `,
             [
               processNumber,
-              company_id,
-              contact_id,
-              responsible_user_id,
-              description,
-              advance_amount,
-              status,
-              address,
+              company_id || null,
+              contact_id || null,
+              responsible_user_id || null,
+              description || "",
+              advance_amount === "" ? null : Number(advance_amount),
+              status || "nowy",
+              typeof address === "string" ? address : "",
               createdAt,
             ],
             function (err) {
