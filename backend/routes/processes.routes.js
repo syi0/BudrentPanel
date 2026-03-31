@@ -156,6 +156,7 @@ module.exports = (db) => {
       console.error("POST /processes crash:", e);
       res.status(500).json({ error: "Internal server error" });
     }
+    console.log("BODY:", req.body);
   });
   router.put("/:id", (req, res) => {
     try {
