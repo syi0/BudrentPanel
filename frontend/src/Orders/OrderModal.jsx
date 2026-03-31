@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Select from "react-select";
 import "./Orders.css";
+import generateProtocol from "./generateProtocol"; 
 
 export default function OrderModal({ order, onClose, onSaved }) {
   const [clientType, setClientType] = useState("company");
@@ -20,8 +21,12 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const selectedContact = contacts.find(c => c.id === form.contact_id);
+  const selectedCompany = companies.find(c => c.id === form.company_id);
+
   useEffect(() => {
     let cancelled = false;
+
     const loadData = async () => {
       try {
         const [cRes, ctRes, uRes] = await Promise.all([
@@ -34,9 +39,10 @@ export default function OrderModal({ order, onClose, onSaved }) {
         setContacts(ctRes.data || []);
         setUsers(uRes.data || []);
       } catch (err) {
-        console.error("Błąd ładowania danych:", err);
+        console.error(err);
       }
     };
+
     loadData();
 
     if (order) {
@@ -50,49 +56,34 @@ export default function OrderModal({ order, onClose, onSaved }) {
         address: order.address || "",
       });
       setClientType(order.company_id ? "company" : "individual");
-    } else {
-      setClientType("company");
-      setForm({
-        company_id: "",
-        contact_id: "",
-        responsible_user_id: "",
-        description: "",
-        advance_amount: "",
-        status: "nowy",
-        address: "",
-      });
     }
 
-    return () => {
-      cancelled = true;
-    };
+    return () => (cancelled = true);
   }, [order]);
 
-  const userOptions = users.map((u) => ({ value: u.id, label: u.name }));
-  const companyOptions = companies.map((c) => ({ value: c.id, label: c.name }));
-  const contactOptions = [
-  ...(form.contact_id
-    ? contacts
-        .filter((c) => c.id === form.contact_id)
-        .map((c) => ({ value: c.id, label: c.name }))
-    : []),
-  ...contacts
-    .filter((c) => {
-      if (clientType === "individual") return true;
-      return c.company_id === form.company_id;
-    })
-    .map((c) => ({ value: c.id, label: c.name })),
-];
+  const userOptions = users.map(u => ({ value: u.id, label: u.name }));
+  const companyOptions = companies.map(c => ({ value: c.id, label: c.name }));
+
+  const contactOptions = contacts
+    .filter(c => clientType === "individual" || c.company_id === form.company_id)
+    .map(c => ({
+      value: c.id,
+      label: `${c.first_name || ""}${c.last_name ? " " + c.last_name : ""}`.trim()
+    }));
 
   const save = async () => {
     try {
       setLoading(true);
-      const payload = { ...form };
-      payload.company_id = payload.company_id || null;
-      payload.contact_id = payload.contact_id || null;
-      payload.responsible_user_id = payload.responsible_user_id || null;
-      payload.advance_amount =
-        payload.advance_amount === "" ? null : Number(payload.advance_amount);
+
+      const payload = {
+        ...form,
+        company_id: form.company_id || null,
+        contact_id: form.contact_id || null,
+        responsible_user_id: form.responsible_user_id || null,
+        advance_amount:
+          form.advance_amount === "" ? null : Number(form.advance_amount),
+      };
+
       if (clientType === "individual") payload.company_id = null;
 
       if (order?.id) {
@@ -104,7 +95,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
       onSaved();
       onClose();
     } catch (err) {
-      console.error("Błąd zapisu procesu:", err);
+      console.error(err);
       alert("Błąd zapisu");
     } finally {
       setLoading(false);
@@ -115,17 +106,15 @@ export default function OrderModal({ order, onClose, onSaved }) {
     <div className="modal-backdrop">
       <div className="modal">
         <h3>{order ? "Edytuj zlecenie" : "Nowe zlecenie serwisowe"}</h3>
+
         <div className="modal-grid">
           <div className="modal-col">
+
             <label>Odpowiedzialny</label>
             <Select
               options={userOptions}
-              placeholder="Wybierz użytkownika"
-              value={userOptions.find((o) => o.value === form.responsible_user_id) || null}
-              onChange={(option) =>
-                setForm({ ...form, responsible_user_id: option?.value || "" })
-              }
-              isSearchable
+              value={userOptions.find(o => o.value === form.responsible_user_id)}
+              onChange={o => setForm({ ...form, responsible_user_id: o?.value || "" })}
             />
 
             <div className="toggle-group">
@@ -147,86 +136,78 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             {clientType === "company" && (
               <>
-                <label>Nazwa firmy</label>
+                <label>Firma</label>
                 <Select
                   options={companyOptions}
-                  placeholder="Wybierz firmę"
-                  value={companyOptions.find((o) => o.value === form.company_id) || null}
-                  onChange={(option) =>
-                    setForm({ ...form, company_id: option?.value || "", contact_id: "" })
+                  value={companyOptions.find(o => o.value === form.company_id)}
+                  onChange={o =>
+                    setForm({ ...form, company_id: o?.value || "", contact_id: "" })
                   }
-                  isSearchable
                 />
               </>
             )}
 
             <label>Osoba kontaktowa</label>
             <Select
-              key={form.company_id} 
               options={contactOptions}
-              placeholder="Wybierz osobę"
-              value={contactOptions.find((o) => o.value === form.contact_id) || null}
-              onChange={(option) => setForm({ ...form, contact_id: option?.value || "" })}
-              isSearchable
+              value={contactOptions.find(o => o.value === form.contact_id)}
+              onChange={o => setForm({ ...form, contact_id: o?.value || "" })}
             />
+
+            {selectedContact && (
+              <div className="contact-preview">
+                <strong>
+                  {selectedContact.first_name}
+                  {selectedContact.last_name
+                    ? ` ${selectedContact.last_name}`
+                    : ""}
+                </strong>
+                <div>{selectedContact.phone || "Brak telefonu"}</div>
+              </div>
+            )}
 
             <label>Adres</label>
             <input
-              type="text"
               value={form.address}
-              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              onChange={e => setForm({ ...form, address: e.target.value })}
             />
           </div>
 
           <div className="modal-col">
-            <label>Opis zlecenia</label>
+            <label>Opis</label>
             <textarea
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={e => setForm({ ...form, description: e.target.value })}
             />
 
             <label>Zaliczka</label>
             <input
               type="number"
               value={form.advance_amount}
-              onChange={(e) => setForm({ ...form, advance_amount: e.target.value })}
+              onChange={e => setForm({ ...form, advance_amount: e.target.value })}
             />
           </div>
         </div>
 
         <div className="modal-footer">
-          <select
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
+
+          <button
+            onClick={() =>
+              generateProtocol({
+                form,
+                company: selectedCompany,
+                contact: selectedContact,
+              })
+            }
           >
-            <option value="nowy">Nowe</option>
-            <option value="przekazane">Przekazane</option>
-            <option value="w_realizacji">W realizacji</option>
-            <option value="ukonczone">Ukończone</option>
-          </select>
+            Protokół
+          </button>
 
-          {order?.id && (
-            <button
-              className="danger-btn"
-              onClick={async () => {
-                if (!confirm("Czy na pewno chcesz usunąć?")) return;
-                await api.delete(`/processes/${order.id}`);
-                onSaved();
-                onClose();
-              }}
-            >
-              Usuń
-            </button>
-          )}
+          <button onClick={save} disabled={loading}>
+            {loading ? "Zapisywanie..." : "Zapisz"}
+          </button>
 
-          <div className="modal-actions">
-            <button className="primary-btn" onClick={save} disabled={loading}>
-              {loading ? "Zapisywanie..." : "Zapisz"}
-            </button>
-            <button className="secondary-btn" onClick={onClose}>
-              Anuluj
-            </button>
-          </div>
+          <button onClick={onClose}>Anuluj</button>
         </div>
       </div>
     </div>

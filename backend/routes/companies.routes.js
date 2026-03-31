@@ -1,8 +1,4 @@
 const express = require("express");
-const router = express.Router();
-const sqlite3 = require("sqlite3").verbose();
-const db = new sqlite3.Database("./data.sqlite");
-
 
 module.exports = (db) => {
     const router = express.Router();
@@ -12,6 +8,9 @@ module.exports = (db) => {
             name = "",
             nip = "",
             city = "",
+            address = "",
+            postal_code = "",
+            contact_person = "",
             account_manager = "",
             page = 1,
             limit = 20
@@ -25,26 +24,54 @@ module.exports = (db) => {
         const params = [];
 
         if (name) {
-            filters.push("name LIKE ?");
+            filters.push("c.name LIKE ? COLLATE BINARY");
             params.push(`%${name}%`);
         }
+
         if (nip) {
-            filters.push("nip LIKE ?");
+            filters.push("c.nip LIKE ? COLLATE BINARY");
             params.push(`%${nip}%`);
         }
+
         if (city) {
-            filters.push("city LIKE ?");
+            filters.push("c.city LIKE ? COLLATE BINARY");
             params.push(`%${city}%`);
         }
+
+        if (address) {
+            filters.push("c.address LIKE ? COLLATE BINARY");
+            params.push(`%${address}%`);
+        }
+
+        if (postal_code) {
+            filters.push("c.postal_code LIKE ? COLLATE BINARY");
+            params.push(`%${postal_code}%`);
+        }
+
         if (account_manager) {
-            filters.push("account_manager LIKE ?");
+            filters.push("c.account_manager LIKE ? COLLATE BINARY");
             params.push(`%${account_manager}%`);
+        }
+
+        if (contact_person) {
+            filters.push(`
+                (
+                    ct.first_name LIKE ? COLLATE BINARY
+                    OR ct.last_name LIKE ? COLLATE BINARY
+                )
+            `);
+            params.push(`%${contact_person}%`, `%${contact_person}%`);
         }
 
         const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
 
         db.get(
-            `SELECT COUNT(*) as total FROM companies ${where}`,
+            `
+            SELECT COUNT(DISTINCT c.id) as total
+            FROM companies c
+            LEFT JOIN contacts ct ON ct.company_id = c.id
+            ${where}
+            `,
             params,
             (err, countRow) => {
                 if (err) return res.status(500).json(err);
@@ -54,10 +81,11 @@ module.exports = (db) => {
 
                 db.all(
                     `
-                    SELECT *
-                    FROM companies
+                    SELECT DISTINCT c.*
+                    FROM companies c
+                    LEFT JOIN contacts ct ON ct.company_id = c.id
                     ${where}
-                    ORDER BY name
+                    ORDER BY c.name
                     LIMIT ? OFFSET ?
                     `,
                     [...params, l, offset],
@@ -75,8 +103,6 @@ module.exports = (db) => {
             }
         );
     });
-
-
 
     router.post("/", (req, res) => {
         const {
@@ -99,7 +125,7 @@ module.exports = (db) => {
             [name, nip, address, postal_code, city, account_manager],
             function (err) {
                 if (err) {
-                    console.error("POST /companies:", err);
+                    console.error(err);
                     return res.status(500).json({ error: err.message });
                 }
                 res.json({ id: this.lastID });
@@ -135,7 +161,7 @@ module.exports = (db) => {
             [name, nip, address, postal_code, city, account_manager, id],
             (err) => {
                 if (err) {
-                    console.error("PUT /companies:", err);
+                    console.error(err);
                     return res.status(500).json({ error: err.message });
                 }
                 res.json({ success: true });
@@ -149,25 +175,9 @@ module.exports = (db) => {
         db.run(
             "DELETE FROM companies WHERE id = ?",
             [id],
-            (err) => {
-                if (err) {
-                    console.error("DELETE /companies:", err);
-                    return res.status(500).json({ error: err.message });
-                }
-                res.json({ success: true });
-            }
-        );
-    });
-
-    router.delete("/:id", (req, res) => {
-    const { id } = req.params;
-
-        db.run(
-            "DELETE FROM companies WHERE id = ?",
-            [id],
             function (err) {
                 if (err) {
-                    console.error("DELETE /companies:", err);
+                    console.error(err);
                     return res.status(500).json({ error: err.message });
                 }
                 res.json({ success: true });

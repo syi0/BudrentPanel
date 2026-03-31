@@ -58,8 +58,6 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
     const requiredFields = [
       { key: "company_id", label: "Firma" },
       { key: "first_name", label: "Imię" },
-      { key: "last_name", label: "Nazwisko" },
-      { key: "email", label: "Email" },
     ];
 
     for (const field of requiredFields) {
@@ -69,10 +67,13 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
       }
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(form.email)) {
-      alert("Podaj poprawny adres email");
-      return false;
+    // 🔥 Email tylko jeśli podany
+    if (form.email?.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email)) {
+        alert("Podaj poprawny adres email");
+        return false;
+      }
     }
 
     return true;
@@ -84,8 +85,8 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
     const payload = {
       company_id: form.company_id,
       first_name: form.first_name.trim(),
-      last_name: form.last_name.trim(),
-      email: form.email.trim(),
+      last_name: form.last_name.trim() || null,
+      email: form.email.trim() || null,
       phone: form.phone.trim() || null,
       verified: form.verified ? 1 : 0,
       marketing_consent: form.marketing_consent ? 1 : 0,
@@ -151,14 +152,14 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
         />
 
         <input
-          placeholder="Nazwisko"
+          placeholder="Nazwisko (opcjonalne)"
           value={form.last_name}
           onChange={e => setForm({ ...form, last_name: e.target.value })}
         />
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Email (opcjonalny)"
           value={form.email}
           onChange={e => setForm({ ...form, email: e.target.value })}
         />

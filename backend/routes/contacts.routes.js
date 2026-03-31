@@ -22,19 +22,19 @@ module.exports = (db) => {
         const params = [];
 
         if (company) {
-            filters.push("c.name LIKE ?");
+            filters.push("c.name LIKE ? COLLATE BINARY");
             params.push(`%${company}%`);
         }
         if (first_name) {
-            filters.push("ct.first_name LIKE ?");
+            filters.push("ct.first_name LIKE ? COLLATE BINARY");
             params.push(`%${first_name}%`);
         }
         if (last_name) {
-            filters.push("ct.last_name LIKE ?");
+            filters.push("ct.last_name LIKE ? COLLATE BINARY");
             params.push(`%${last_name}%`);
         }
         if (email) {
-            filters.push("ct.email LIKE ?");
+            filters.push("ct.email LIKE ? COLLATE BINARY");
             params.push(`%${email}%`);
         }
         if (verified !== "") {
