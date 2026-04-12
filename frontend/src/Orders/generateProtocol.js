@@ -29,14 +29,20 @@ export default function generateProtocol({ form, company, contact, processNumber
       </tr>
       <tr>
         <td style="padding:8px; height:80px;">
-          ${company?.name || ""}
-          <br/>
-          ${contact?.first_name || ""} ${contact?.last_name || ""}
-          <br/>
-          ${contact?.phone || ""}
-          <br/>
-          ${form.address || ""}
-        </td>
+        ${company?.name || ""}
+        <br/>
+        ${contact ? `${contact.first_name || ""} ${contact.last_name || ""}` : ""}
+        <br/>
+        ${contact?.phone || ""}
+        <br/>
+        ${
+          form.address 
+          || (company 
+              ? `${company.address || ""} ${company.postal_code || ""} ${company.city || ""}` 
+              : "") 
+          || ""
+        }
+      </td>
         <td style="padding:8px;">
           BUDRENT SPÓŁKA Z O.O.<br/>
           Kołobrzeska 42<br/>
