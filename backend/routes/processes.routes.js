@@ -45,6 +45,8 @@ module.exports = (db) => {
           p.responsible_user_id,
           p.description,
           p.advance_amount,
+          p.settlement,        
+          p.parts_used,     
           p.status,
           p.address,
           p.created_at,
@@ -82,9 +84,12 @@ module.exports = (db) => {
         responsible_user_id,
         description,
         advance_amount,
+        settlement,
         status,
         address,
+        parts_used
       } = req.body;
+
       company_id = company_id ? Number(company_id) : null;
       contact_id = contact_id ? Number(contact_id) : null;
       responsible_user_id = responsible_user_id ? Number(responsible_user_id) : null;
@@ -92,13 +97,23 @@ module.exports = (db) => {
       description = description || "";
       status = status || "nowy";
       address = typeof address === "string" ? address : "";
+
       advance_amount =
         advance_amount === "" || advance_amount === undefined
           ? null
           : Number(advance_amount);
 
+      settlement =
+        settlement === "" || settlement === undefined
+          ? null
+          : Number(settlement);
+
+      parts_used = parts_used || "";
+
       if (!company_id && !contact_id) {
-        return res.status(400).json({ error: "Indywidualny klient musi mieć osobę kontaktową" });
+        return res.status(400).json({
+          error: "Indywidualny klient musi mieć osobę kontaktową"
+        });
       }
 
       const now = new Date();
@@ -122,25 +137,26 @@ module.exports = (db) => {
             return res.status(500).json({ error: err.message });
           }
 
-          // Bezpieczna konwersja: jeśli row.max jest null, ustaw 0
           const next = (row?.max || 0) + 1;
           const processNumber = `SRW/${next}/${yearFull}`;
 
           db.run(
             `
             INSERT INTO processes
-            (process_number, company_id, contact_id, responsible_user_id, description, advance_amount, status, address, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (process_number, company_id, contact_id, responsible_user_id, description, advance_amount, settlement, status, address, parts_used, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `,
             [
               processNumber,
-              company_id || null,
-              contact_id || null,
-              responsible_user_id || null,
-              description || "",
-              advance_amount === "" ? null : Number(advance_amount),
-              status || "nowy",
-              typeof address === "string" ? address : "",
+              company_id,
+              contact_id,
+              responsible_user_id,
+              description,
+              advance_amount,
+              settlement,
+              status,
+              address,
+              parts_used,
               createdAt,
             ],
             function (err) {
@@ -162,6 +178,7 @@ module.exports = (db) => {
       res.status(500).json({ error: "Internal server error" });
     }
   });
+
   router.put("/:id", (req, res) => {
     try {
       const {
@@ -170,8 +187,10 @@ module.exports = (db) => {
         responsible_user_id,
         description,
         advance_amount,
+        settlement,
         status,
         address,
+        parts_used
       } = req.body;
 
       db.run(
@@ -182,8 +201,10 @@ module.exports = (db) => {
           responsible_user_id = ?,
           description = ?,
           advance_amount = ?,
+          settlement = ?,
           status = ?,
-          address = ?
+          address = ?,
+          parts_used = ?
         WHERE id = ?
         `,
         [
@@ -192,8 +213,10 @@ module.exports = (db) => {
           responsible_user_id || null,
           description || "",
           advance_amount === "" ? null : Number(advance_amount),
+          settlement === "" ? null : Number(settlement),
           status || "nowy",
           typeof address === "string" ? address : "",
+          parts_used || "",
           req.params.id,
         ],
         (err) => {

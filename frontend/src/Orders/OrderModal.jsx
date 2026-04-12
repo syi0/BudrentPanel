@@ -12,6 +12,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
     responsible_user_id: "",
     description: "",
     advance_amount: "",
+    settlement: "",       
+    parts_used: "",     
     status: "nowy",
     address: "",
   });
@@ -52,6 +54,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
         responsible_user_id: order.responsible_user_id || "",
         description: order.description || "",
         advance_amount: order.advance_amount || "",
+        settlement: order.settlement || "",   
+        parts_used: order.parts_used || "",  
         status: order.status || "nowy",
         address: order.address || "",
       });
@@ -84,6 +88,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
         contact_id: form.contact_id ? Number(form.contact_id) : null,
         responsible_user_id: form.responsible_user_id ? Number(form.responsible_user_id) : null,
         advance_amount: form.advance_amount === "" ? null : Number(form.advance_amount),
+
+        settlement: form.settlement === "" ? null : Number(form.settlement),
       };
 
       if (order?.id) {
@@ -179,12 +185,39 @@ export default function OrderModal({ order, onClose, onSaved }) {
               value={form.description}
               onChange={e => setForm({ ...form, description: e.target.value })}
             />
+            <label>Status</label>
+            <Select
+              options={[
+                { value: "nowy", label: "Nowy" },
+                { value: "w trakcie", label: "W trakcie" },
+                { value: "zakończony", label: "Zakończony" },
+                { value: "anulowany", label: "Anulowany" }
+              ]}
+              value={{
+                value: form.status,
+                label: form.status
+              }}
+              onChange={o => setForm({ ...form, status: o.value })}
+            />
 
             <label>Zaliczka</label>
             <input
               type="number"
               value={form.advance_amount}
               onChange={e => setForm({ ...form, advance_amount: e.target.value })}
+            />
+
+            <label>Rozliczenie</label>
+            <input
+              type="number"
+              value={form.settlement}
+              onChange={e => setForm({ ...form, settlement: e.target.value })}
+            />
+
+            <label>Wymienione części</label>
+            <textarea
+              value={form.parts_used}
+              onChange={e => setForm({ ...form, parts_used: e.target.value })}
             />
           </div>
         </div>
