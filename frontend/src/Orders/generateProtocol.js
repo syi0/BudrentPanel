@@ -64,7 +64,7 @@ export default function generateProtocol({ form, company, contact, processNumber
         <td style="padding:6px;">WYMIENIONE CZĘŚCI</td>
       </tr>
       <tr>
-        <td style="padding:8px; height:60px;"></td>
+        <td style="padding:8px; height:60px;">${form.parts_used || ""}</td>
       </tr>
     </table>
 
@@ -74,7 +74,7 @@ export default function generateProtocol({ form, company, contact, processNumber
         <td style="padding:6px;">ROZLICZENIE</td>
       </tr>
       <tr>
-        <td style="padding:8px; height:60px;"></td>
+        <td style="padding:8px; height:60px;">${form.settlement ? `${form.settlement} PLN` : ""}</td>
       </tr>
     </table>
 
@@ -85,7 +85,7 @@ export default function generateProtocol({ form, company, contact, processNumber
       </tr>
       <tr>
         <td style="padding:8px; height:40px;">
-          ${form.advance_amount || ""} PLN
+          ${form.advance_amount ? `${form.advance_amount} PLN` : ""}
         </td>
       </tr>
     </table>
