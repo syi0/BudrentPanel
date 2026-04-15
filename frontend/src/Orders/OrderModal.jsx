@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../api";
 import Select from "react-select";
 import "./Orders.css";
-import generateProtocol from "./generateProtocol"; 
+import generateProtocol from "./generateProtocol";
 
 export default function OrderModal({ order, onClose, onSaved }) {
   const [clientType, setClientType] = useState("company");
@@ -12,8 +12,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
     responsible_user_id: "",
     description: "",
     advance_amount: "",
-    settlement: "",       
-    parts_used: "",     
+    settlement: "",
+    parts_used: "",
     status: "nowy",
     address: "",
   });
@@ -54,8 +54,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
         responsible_user_id: order.responsible_user_id || "",
         description: order.description || "",
         advance_amount: order.advance_amount || "",
-        settlement: order.settlement || "",   
-        parts_used: order.parts_used || "",  
+        settlement: order.settlement || "",
+        parts_used: order.parts_used || "",
         status: order.status || "nowy",
         address: order.address || "",
       });
@@ -69,14 +69,25 @@ export default function OrderModal({ order, onClose, onSaved }) {
     value: u.id,
     label: [u.first_name, u.last_name].filter(Boolean).join(" ")
   }));
-  const companyOptions = companies.map(c => ({ value: c.id, label: c.name }));
+
+  const companyOptions = companies.map(c => ({
+    value: c.id,
+    label: c.name
+  }));
 
   const contactOptions = contacts
     .filter(c => clientType === "individual" || c.company_id === Number(form.company_id))
     .map(c => ({
       value: c.id,
       label: [c.first_name, c.last_name].filter(Boolean).join(" ")
-  }));
+    }));
+
+  const statusOptions = [
+    { value: "nowy", label: "Nowy" },
+    { value: "w_realizacji", label: "W realizacji" },
+    { value: "zakończony", label: "Zakończony" },
+    { value: "anulowany", label: "Anulowany" }
+  ];
 
   const save = async () => {
     try {
@@ -84,12 +95,20 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
       const payload = {
         ...form,
-        company_id: clientType === "individual" ? null : form.company_id ? Number(form.company_id) : null,
+        company_id:
+          clientType === "individual"
+            ? null
+            : form.company_id
+            ? Number(form.company_id)
+            : null,
         contact_id: form.contact_id ? Number(form.contact_id) : null,
-        responsible_user_id: form.responsible_user_id ? Number(form.responsible_user_id) : null,
-        advance_amount: form.advance_amount === "" ? null : Number(form.advance_amount),
-
-        settlement: form.settlement === "" ? null : Number(form.settlement),
+        responsible_user_id: form.responsible_user_id
+          ? Number(form.responsible_user_id)
+          : null,
+        advance_amount:
+          form.advance_amount === "" ? null : Number(form.advance_amount),
+        settlement:
+          form.settlement === "" ? null : Number(form.settlement),
       };
 
       if (order?.id) {
@@ -120,7 +139,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <Select
               options={userOptions}
               value={userOptions.find(o => o.value === form.responsible_user_id)}
-              onChange={o => setForm({ ...form, responsible_user_id: o?.value || "" })}
+              onChange={o =>
+                setForm({ ...form, responsible_user_id: o?.value || "" })
+              }
             />
 
             <div className="toggle-group">
@@ -147,7 +168,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
                   options={companyOptions}
                   value={companyOptions.find(o => o.value === form.company_id)}
                   onChange={o =>
-                    setForm({ ...form, company_id: o?.value || "", contact_id: "" })
+                    setForm({
+                      ...form,
+                      company_id: o?.value || "",
+                      contact_id: ""
+                    })
                   }
                 />
               </>
@@ -157,7 +182,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <Select
               options={contactOptions}
               value={contactOptions.find(o => o.value === form.contact_id)}
-              onChange={o => setForm({ ...form, contact_id: o?.value || "" })}
+              onChange={o =>
+                setForm({ ...form, contact_id: o?.value || "" })
+              }
             />
 
             {selectedContact && (
@@ -175,7 +202,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <label>Adres</label>
             <input
               value={form.address}
-              onChange={e => setForm({ ...form, address: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, address: e.target.value })
+              }
             />
           </div>
 
@@ -183,41 +212,44 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <label>Opis</label>
             <textarea
               value={form.description}
-              onChange={e => setForm({ ...form, description: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, description: e.target.value })
+              }
             />
+
             <label>Status</label>
             <Select
-              options={[
-                { value: "nowy", label: "Nowy" },
-                { value: "w trakcie", label: "W trakcie" },
-                { value: "zakończony", label: "Zakończony" },
-                { value: "anulowany", label: "Anulowany" }
-              ]}
-              value={{
-                value: form.status,
-                label: form.status
-              }}
-              onChange={o => setForm({ ...form, status: o.value })}
+              options={statusOptions}
+              value={statusOptions.find(o => o.value === form.status)}
+              onChange={o =>
+                setForm({ ...form, status: o.value })
+              }
             />
 
             <label>Zaliczka</label>
             <input
               type="number"
               value={form.advance_amount}
-              onChange={e => setForm({ ...form, advance_amount: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, advance_amount: e.target.value })
+              }
             />
 
             <label>Rozliczenie</label>
             <input
               type="number"
               value={form.settlement}
-              onChange={e => setForm({ ...form, settlement: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, settlement: e.target.value })
+              }
             />
 
             <label>Wymienione części</label>
             <textarea
               value={form.parts_used}
-              onChange={e => setForm({ ...form, parts_used: e.target.value })}
+              onChange={e =>
+                setForm({ ...form, parts_used: e.target.value })
+              }
             />
           </div>
         </div>

@@ -4,7 +4,16 @@ module.exports = (db) => {
   const router = express.Router();
 
   router.get("/", (req, res) => {
-    const { company, status } = req.query;
+    const {
+      company,
+      status,
+      process_number,
+      responsible,
+      description,
+      parts,
+      contact
+    } = req.query;
+
     const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.min(Number(req.query.limit) || 20, 100);
     const offset = (page - 1) * limit;
@@ -25,8 +34,33 @@ module.exports = (db) => {
     }
 
     if (status) {
-      baseSql += " AND p.status = ?";
+      baseSql += ` AND p.status = ?`;
       params.push(status);
+    }
+
+    if (process_number) {
+      baseSql += ` AND p.process_number LIKE ?`;
+      params.push(`%${process_number}%`);
+    }
+
+    if (responsible) {
+      baseSql += ` AND (u.first_name LIKE ? OR u.last_name LIKE ?)`;
+      params.push(`%${responsible}%`, `%${responsible}%`);
+    }
+
+    if (description) {
+      baseSql += ` AND p.description LIKE ?`;
+      params.push(`%${description}%`);
+    }
+
+    if (parts) {
+      baseSql += ` AND p.parts_used LIKE ?`;
+      params.push(`%${parts}%`);
+    }
+
+    if (contact) {
+      baseSql += ` AND (ct.first_name LIKE ? OR ct.last_name LIKE ?)`;
+      params.push(`%${contact}%`, `%${contact}%`);
     }
 
     db.get(`SELECT COUNT(*) as total ${baseSql}`, params, (err, countRow) => {
@@ -45,8 +79,8 @@ module.exports = (db) => {
           p.responsible_user_id,
           p.description,
           p.advance_amount,
-          p.settlement,        
-          p.parts_used,     
+          p.settlement,
+          p.parts_used,
           p.status,
           p.address,
           p.created_at,
