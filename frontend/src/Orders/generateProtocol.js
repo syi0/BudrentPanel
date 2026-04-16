@@ -16,7 +16,7 @@ export default function generateProtocol({ form, company, contact, processNumber
 
   const createdAt = order?.created_at
   ? new Date(order.created_at).toLocaleString("pl-PL")
-  : "";
+  : "brak daty";
 
   const html = `
   <div style="font-family: Arial; padding: 20px; font-size: 12px;">

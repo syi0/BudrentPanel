@@ -33,7 +33,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
     c => c.id === Number(form.contact_id)
   );
 
-  // ---- helpers ----
   const getCompanyAddress = (c) => {
     if (!c) return "";
     return [c.address, c.postal_code, c.city]
@@ -41,7 +40,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
       .join(", ");
   };
 
-  // ---- load data + init ----
   useEffect(() => {
     let cancelled = false;
 
@@ -76,7 +74,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
         parts_used: order.parts_used || "",
         status: order.status || "nowy",
         address: order.address || "",
-        address_mode: order.address ? "custom" : "company"
+        address_mode: order.address_mode || (order.address ? "custom" : "company")
       });
 
       setClientType(order.company_id ? "company" : "individual");
@@ -87,19 +85,21 @@ export default function OrderModal({ order, onClose, onSaved }) {
     };
   }, [order]);
 
-  // ---- sync company address ONLY when company mode active ----
   useEffect(() => {
     if (form.address_mode !== "company") return;
 
-    if (!selectedCompany) return;
+    const company = companies.find(
+      c => c.id === Number(form.company_id)
+    );
+
+    if (!company) return;
 
     setForm(f => ({
       ...f,
-      address: getCompanyAddress(selectedCompany)
+      address: getCompanyAddress(company)
     }));
-  }, [form.company_id, form.address_mode, selectedCompany]);
+  }, [form.company_id, form.address_mode, companies]);
 
-  // ---- options ----
   const userOptions = users.map(u => ({
     value: u.id,
     label: [u.first_name, u.last_name].filter(Boolean).join(" ")
@@ -132,7 +132,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
     { value: "custom", label: "Inny adres" }
   ];
 
-  // ---- save ----
   const save = async () => {
     try {
       setLoading(true);
@@ -344,7 +343,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
                     form,
                     company: selectedCompany,
                     contact: selectedContact,
-                    processNumber: order?.process_number
+                    processNumber: order?.process_number,
+                    order
                   })
                 }
               >
