@@ -39,9 +39,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
           api.get("/users2"),
         ]);
         if (cancelled) return;
-        setCompanies(cRes.data.data || []);
-        setContacts(ctRes.data.data || []);
-        setUsers(uRes.data.data || []);
+        setCompanies(cRes.data || []);
+        setContacts(ctRes.data || []);
+        setUsers(uRes.data || []);
       } catch (err) {
         console.error(err);
       }
