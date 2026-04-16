@@ -6,6 +6,8 @@ import generateProtocol from "./generateProtocol";
 
 export default function OrderModal({ order, onClose, onSaved }) {
   const [clientType, setClientType] = useState("company");
+  const [addressMode, setAddressMode] = useState("company"); 
+
   const [form, setForm] = useState({
     company_id: "",
     contact_id: "",
@@ -64,6 +66,22 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
     return () => (cancelled = true);
   }, [order]);
+
+  // 🔥 NOWE: opcje adresu
+  const addressOptions = [
+    { value: "company", label: "Adres firmy" },
+    { value: "custom", label: "Inny adres" }
+  ];
+
+  // 🔥 NOWE: auto-uzupełnianie adresu przy zmianie firmy
+  useEffect(() => {
+    if (addressMode === "company" && selectedCompany) {
+      setForm(f => ({
+        ...f,
+        address: selectedCompany.address || ""
+      }));
+    }
+  }, [form.company_id, addressMode, selectedCompany]);
 
   const userOptions = users.map(u => ({
     value: u.id,
@@ -200,12 +218,45 @@ export default function OrderModal({ order, onClose, onSaved }) {
             )}
 
             <label>Adres</label>
-            <input
-              value={form.address}
-              onChange={e =>
-                setForm({ ...form, address: e.target.value })
-              }
+
+            <Select
+              options={addressOptions}
+              value={addressOptions.find(o => o.value === addressMode)}
+              onChange={(o) => {
+                const mode = o.value;
+                setAddressMode(mode);
+
+                if (mode === "company" && selectedCompany) {
+                  setForm({
+                    ...form,
+                    address: selectedCompany.address || ""
+                  });
+                }
+
+                if (mode === "custom") {
+                  setForm({
+                    ...form,
+                    address: ""
+                  });
+                }
+              }}
             />
+
+            {addressMode === "custom" ? (
+              <textarea
+                placeholder="Wpisz adres"
+                value={form.address}
+                onChange={e =>
+                  setForm({ ...form, address: e.target.value })
+                }
+              />
+            ) : (
+              <input
+                value={selectedCompany?.address || ""}
+                disabled
+              />
+            )}
+
           </div>
 
           <div className="modal-col">

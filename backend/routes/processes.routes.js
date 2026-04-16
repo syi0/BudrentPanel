@@ -3,6 +3,16 @@ const express = require("express");
 module.exports = (db) => {
   const router = express.Router();
 
+  const safeNumber = (val) => {
+    if (val === "" || val == null) return null;
+    const num = Number(val);
+    return isNaN(num) ? null : num;
+  };
+
+  const safeString = (val) => {
+    return typeof val === "string" ? val : "";
+  };
+
   router.get("/", (req, res) => {
     const {
       company,
@@ -66,7 +76,7 @@ module.exports = (db) => {
     db.get(`SELECT COUNT(*) as total ${baseSql}`, params, (err, countRow) => {
       if (err) {
         console.error("COUNT /processes:", err);
-        return res.sendStatus(500);
+        return res.status(500).json({ error: err.message });
       }
 
       db.all(
@@ -85,8 +95,8 @@ module.exports = (db) => {
           p.address,
           p.created_at,
           c.name AS company_name,
-          ct.first_name || ' ' || ct.last_name AS contact_name,
-          u.first_name || ' ' || u.last_name AS responsible_name
+          COALESCE(ct.first_name, '') || ' ' || COALESCE(ct.last_name, '') AS contact_name,
+          COALESCE(u.first_name, '') || ' ' || COALESCE(u.last_name, '') AS responsible_name
         ${baseSql}
         ORDER BY p.id DESC
         LIMIT ? OFFSET ?
@@ -95,7 +105,7 @@ module.exports = (db) => {
         (err, rows) => {
           if (err) {
             console.error("SELECT /processes:", err);
-            return res.sendStatus(500);
+            return res.status(500).json({ error: err.message });
           }
 
           res.json({
@@ -128,21 +138,13 @@ module.exports = (db) => {
       contact_id = contact_id ? Number(contact_id) : null;
       responsible_user_id = responsible_user_id ? Number(responsible_user_id) : null;
 
-      description = description || "";
+      description = safeString(description);
       status = status || "nowy";
-      address = typeof address === "string" ? address : "";
+      address = safeString(address);
+      parts_used = safeString(parts_used);
 
-      advance_amount =
-        advance_amount === "" || advance_amount === undefined
-          ? null
-          : Number(advance_amount);
-
-      settlement =
-        settlement === "" || settlement === undefined
-          ? null
-          : Number(settlement);
-
-      parts_used = parts_used || "";
+      advance_amount = safeNumber(advance_amount);
+      settlement = safeNumber(settlement);
 
       if (!company_id && !contact_id) {
         return res.status(400).json({
@@ -195,7 +197,7 @@ module.exports = (db) => {
             ],
             function (err) {
               if (err) {
-                console.error("POST /processes:", err);
+                console.error("POST /processes:", err, req.body);
                 return res.status(500).json({ error: err.message });
               }
 
@@ -208,14 +210,14 @@ module.exports = (db) => {
         }
       );
     } catch (e) {
-      console.error("POST /processes crash:", e);
-      res.status(500).json({ error: "Internal server error" });
+      console.error("POST crash:", e);
+      res.status(500).json({ error: e.message });
     }
   });
 
   router.put("/:id", (req, res) => {
     try {
-      const {
+      let {
         company_id,
         contact_id,
         responsible_user_id,
@@ -226,6 +228,21 @@ module.exports = (db) => {
         address,
         parts_used
       } = req.body;
+
+      company_id = company_id ? Number(company_id) : null;
+      contact_id = contact_id ? Number(contact_id) : null;
+      responsible_user_id = responsible_user_id ? Number(responsible_user_id) : null;
+
+      description = safeString(description);
+      address = safeString(address);
+      parts_used = safeString(parts_used);
+
+      advance_amount = safeNumber(advance_amount);
+      settlement = safeNumber(settlement);
+
+      status = status || "nowy";
+
+      console.log("UPDATE DATA:", req.body);
 
       db.run(
         `
@@ -242,19 +259,15 @@ module.exports = (db) => {
         WHERE id = ?
         `,
         [
-          company_id || null,
-          contact_id || null,
-          responsible_user_id || null,
-          description || "",
-          advance_amount == null || advance_amount === ""
-            ? null
-            : Number(advance_amount),
-          settlement == null || settlement === ""
-            ? null
-            : Number(settlement),
-          status || "nowy",
-          typeof address === "string" ? address : "",
-          parts_used || "",
+          company_id,
+          contact_id,
+          responsible_user_id,
+          description,
+          advance_amount,
+          settlement,
+          status,
+          address,
+          parts_used,
           req.params.id,
         ],
         (err) => {
@@ -266,8 +279,8 @@ module.exports = (db) => {
         }
       );
     } catch (e) {
-      console.error("PUT /processes crash:", e);
-      res.sendStatus(500);
+      console.error("PUT crash:", e);
+      res.status(500).json({ error: e.message });
     }
   });
 
@@ -275,7 +288,7 @@ module.exports = (db) => {
     db.run("DELETE FROM processes WHERE id = ?", [req.params.id], (err) => {
       if (err) {
         console.error("DELETE /processes:", err);
-        return res.sendStatus(500);
+        return res.status(500).json({ error: err.message });
       }
       res.json({ success: true });
     });
