@@ -45,14 +45,11 @@ export default function generateProtocol({ form, company, contact, processNumber
       </tr>
 
       <tr>
-        <td style="padding:8px; vertical-align:top; white-space:pre-line;">
-          ${company?.name || ""}
-          <br/>
-          ${contactName}
-          <br/>
-          ${contact?.phone || ""}
-          <br/>
-          ${fullAddress || ""}
+        <td style="padding:8px; vertical-align:top; font-size:12px; line-height:1.2;">
+          <div>${company?.name || ""}</div>
+          <div>${contactName}</div>
+          <div>${contact?.phone || ""}</div>
+          <div>${fullAddress || ""}</div>
         </td>
 
         <td style="padding:8px; vertical-align:top; white-space:pre-line;">
