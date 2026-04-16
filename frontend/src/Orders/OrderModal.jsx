@@ -39,9 +39,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
           api.get("/users2"),
         ]);
         if (cancelled) return;
-        setCompanies(cRes.data || []);
-        setContacts(ctRes.data || []);
-        setUsers(uRes.data || []);
+        setCompanies(cRes.data.data || []);
+        setContacts(ctRes.data.data || []);
+        setUsers(uRes.data.data || []);
       } catch (err) {
         console.error(err);
       }
@@ -73,13 +73,13 @@ export default function OrderModal({ order, onClose, onSaved }) {
   ];
 
   useEffect(() => {
-    if (addressMode === "company" && selectedCompany) {
+    if (addressMode === "company" && selectedCompany?.address) {
       setForm(f => ({
         ...f,
-        address: selectedCompany.address || ""
+        address: selectedCompany.address
       }));
     }
-  }, [form.company_id, addressMode, selectedCompany]);
+  }, [form.company_id, addressMode]);
 
   console.log(selectedCompany);
 
@@ -227,17 +227,17 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 setAddressMode(mode);
 
                 if (mode === "company" && selectedCompany) {
-                  setForm({
-                    ...form,
+                  setForm(f => ({
+                    ...f,
                     address: selectedCompany.address || ""
-                  });
+                  }));
                 }
 
                 if (mode === "custom") {
-                  setForm({
-                    ...form,
+                  setForm(f => ({
+                    ...f,
                     address: ""
-                  });
+                  }));
                 }
               }}
             />
@@ -252,7 +252,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
               />
             ) : (
               <input
-                value={selectedCompany?.address || ""}
+                value={form.address}
                 disabled
               />
             )}
