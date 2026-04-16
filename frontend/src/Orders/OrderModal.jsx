@@ -85,7 +85,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const statusOptions = [
     { value: "nowy", label: "Nowy" },
     { value: "w_realizacji", label: "W realizacji" },
-    { value: "zakończony", label: "Zakończony" },
+    { value: "zakonczony", label: "Zakończony" },
     { value: "anulowany", label: "Anulowany" }
   ];
 

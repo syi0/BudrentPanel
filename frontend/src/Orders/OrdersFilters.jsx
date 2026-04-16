@@ -73,7 +73,7 @@ export default function OrdersFilters({ onChange }) {
         <option value="">Wszystkie statusy</option>
         <option value="nowy">Nowy</option>
         <option value="w_realizacji">W realizacji</option>
-        <option value="ukonczone">Ukończone</option>
+        <option value="zakonczony">Zakończony</option>
         <option value="anulowany">Anulowany</option>
       </select>
 

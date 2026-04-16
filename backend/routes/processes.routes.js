@@ -246,8 +246,12 @@ module.exports = (db) => {
           contact_id || null,
           responsible_user_id || null,
           description || "",
-          advance_amount === "" ? null : Number(advance_amount),
-          settlement === "" ? null : Number(settlement),
+          advance_amount == null || advance_amount === ""
+            ? null
+            : Number(advance_amount),
+          settlement == null || settlement === ""
+            ? null
+            : Number(settlement),
           status || "nowy",
           typeof address === "string" ? address : "",
           parts_used || "",
@@ -255,8 +259,8 @@ module.exports = (db) => {
         ],
         (err) => {
           if (err) {
-            console.error("PUT /processes:", err);
-            return res.sendStatus(500);
+            console.error("PUT /processes:", err, req.body);
+            return res.status(500).json({ error: err.message });
           }
           res.json({ success: true });
         }
