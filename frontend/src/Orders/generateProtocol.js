@@ -1,5 +1,5 @@
 import html2pdf from "html2pdf.js";
-export default function generateProtocol({ form, company, contact, processNumber }) {
+export default function generateProtocol({ form, company, contact, processNumber, order }) {
 
   const protocolNumber = processNumber || "BRAK NUMERU";
 
