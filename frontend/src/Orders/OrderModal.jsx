@@ -6,7 +6,6 @@ import generateProtocol from "./generateProtocol";
 
 export default function OrderModal({ order, onClose, onSaved }) {
   const [clientType, setClientType] = useState("company");
-  const [addressMode, setAddressMode] = useState("company"); 
 
   const [form, setForm] = useState({
     company_id: "",
@@ -18,6 +17,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
     parts_used: "",
     status: "nowy",
     address: "",
+    address_mode: "company"
   });
 
   const [companies, setCompanies] = useState([]);
@@ -25,20 +25,36 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const selectedContact = contacts.find(c => c.id === Number(form.contact_id));
-  const selectedCompany = companies.find(c => c.id === Number(form.company_id));
+  const selectedCompany = companies.find(
+    c => c.id === Number(form.company_id)
+  );
 
+  const selectedContact = contacts.find(
+    c => c.id === Number(form.contact_id)
+  );
+
+  // ---- helpers ----
+  const getCompanyAddress = (c) => {
+    if (!c) return "";
+    return [c.address, c.postal_code, c.city]
+      .filter(Boolean)
+      .join(", ");
+  };
+
+  // ---- load data + init ----
   useEffect(() => {
     let cancelled = false;
 
-    const loadData = async () => {
+    const load = async () => {
       try {
         const [cRes, ctRes, uRes] = await Promise.all([
           api.get("/companies2"),
           api.get("/contacts2"),
-          api.get("/users2"),
+          api.get("/users2")
         ]);
+
         if (cancelled) return;
+
         setCompanies(cRes.data || []);
         setContacts(ctRes.data || []);
         setUsers(uRes.data || []);
@@ -47,7 +63,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
       }
     };
 
-    loadData();
+    load();
 
     if (order) {
       setForm({
@@ -60,29 +76,30 @@ export default function OrderModal({ order, onClose, onSaved }) {
         parts_used: order.parts_used || "",
         status: order.status || "nowy",
         address: order.address || "",
+        address_mode: order.address ? "custom" : "company"
       });
+
       setClientType(order.company_id ? "company" : "individual");
     }
 
-    return () => (cancelled = true);
+    return () => {
+      cancelled = true;
+    };
   }, [order]);
 
-  const addressOptions = [
-    { value: "company", label: "Adres firmy" },
-    { value: "custom", label: "Inny adres" }
-  ];
-
+  // ---- sync company address ONLY when company mode active ----
   useEffect(() => {
-    if (addressMode === "company" && selectedCompany?.address) {
-      setForm(f => ({
-        ...f,
-        address: selectedCompany.address
-      }));
-    }
-  }, [form.company_id, addressMode]);
+    if (form.address_mode !== "company") return;
 
-  console.log(selectedCompany);
+    if (!selectedCompany) return;
 
+    setForm(f => ({
+      ...f,
+      address: getCompanyAddress(selectedCompany)
+    }));
+  }, [form.company_id, form.address_mode, selectedCompany]);
+
+  // ---- options ----
   const userOptions = users.map(u => ({
     value: u.id,
     label: [u.first_name, u.last_name].filter(Boolean).join(" ")
@@ -94,7 +111,10 @@ export default function OrderModal({ order, onClose, onSaved }) {
   }));
 
   const contactOptions = contacts
-    .filter(c => clientType === "individual" || c.company_id === Number(form.company_id))
+    .filter(c =>
+      clientType === "individual" ||
+      c.company_id === Number(form.company_id)
+    )
     .map(c => ({
       value: c.id,
       label: [c.first_name, c.last_name].filter(Boolean).join(" ")
@@ -107,6 +127,12 @@ export default function OrderModal({ order, onClose, onSaved }) {
     { value: "anulowany", label: "Anulowany" }
   ];
 
+  const addressOptions = [
+    { value: "company", label: "Adres firmy" },
+    { value: "custom", label: "Inny adres" }
+  ];
+
+  // ---- save ----
   const save = async () => {
     try {
       setLoading(true);
@@ -126,7 +152,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
         advance_amount:
           form.advance_amount === "" ? null : Number(form.advance_amount),
         settlement:
-          form.settlement === "" ? null : Number(form.settlement),
+          form.settlement === "" ? null : Number(form.settlement)
       };
 
       if (order?.id) {
@@ -221,28 +247,22 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             <Select
               options={addressOptions}
-              value={addressOptions.find(o => o.value === addressMode)}
+              value={addressOptions.find(o => o.value === form.address_mode)}
               onChange={(o) => {
                 const mode = o.value;
-                setAddressMode(mode);
 
-                if (mode === "company" && selectedCompany) {
-                  setForm(f => ({
-                    ...f,
-                    address: selectedCompany.address || ""
-                  }));
-                }
-
-                if (mode === "custom") {
-                  setForm(f => ({
-                    ...f,
-                    address: ""
-                  }));
-                }
+                setForm(f => ({
+                  ...f,
+                  address_mode: mode,
+                  address:
+                    mode === "company"
+                      ? getCompanyAddress(selectedCompany)
+                      : ""
+                }));
               }}
             />
 
-            {addressMode === "custom" ? (
+            {form.address_mode === "custom" ? (
               <textarea
                 placeholder="Wpisz adres"
                 value={form.address}
@@ -251,15 +271,12 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 }
               />
             ) : (
-              <input
-                value={form.address}
-                disabled
-              />
+              <input value={form.address} disabled />
             )}
-
           </div>
 
           <div className="modal-col">
+
             <label>Opis</label>
             <textarea
               value={form.description}
@@ -313,15 +330,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 className="delete-btn"
                 onClick={async () => {
                   if (!window.confirm("Na pewno usunąć?")) return;
-
-                  try {
-                    await api.delete(`/processes/${order.id}`);
-                    onSaved();
-                    onClose();
-                  } catch (err) {
-                    console.error(err);
-                    alert("Błąd usuwania");
-                  }
+                  await api.delete(`/processes/${order.id}`);
+                  onSaved();
+                  onClose();
                 }}
               >
                 Usuń

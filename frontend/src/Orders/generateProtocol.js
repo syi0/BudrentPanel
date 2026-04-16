@@ -1,9 +1,22 @@
 import html2pdf from "html2pdf.js";
 export default function generateProtocol({ form, company, contact, processNumber }) {
 
-  const today = new Date().toLocaleDateString("pl-PL");
-
   const protocolNumber = processNumber || "BRAK NUMERU";
+
+  const fullAddress = [
+    form.address,
+    company?.address,
+    company?.postal_code,
+    company?.city
+  ].filter(Boolean).join(", ");
+
+  const contactName = contact
+    ? `${contact.first_name || ""} ${contact.last_name || ""}`
+    : "";
+
+  const createdAt = process?.created_at
+  ? new Date(process.created_at).toLocaleString("pl-PL")
+  : "";
 
   const html = `
   <div style="font-family: Arial; padding: 20px; font-size: 12px;">
@@ -15,39 +28,38 @@ export default function generateProtocol({ form, company, contact, processNumber
       </div>
     </div>
 
+        
     <!-- TYTUŁ -->
     <div style="border:1px solid #000; padding:10px; text-align:center; font-weight:bold;">
       PROTOKÓŁ ZLECENIA NR ${protocolNumber}
-      <div style="font-weight:normal;">Data przyjęcia: ${today}</div>
+      <div style="font-weight:normal;">
+        Data przyjęcia: ${createdAt}
+      </div>
     </div>
 
     <!-- KLIENT / WYKONAWCA -->
-    <table style="width:100%; border-collapse:collapse; margin-top:10px;" border="1">
+    <table style="width:100%; border-collapse:collapse; margin-top:10px; table-layout:fixed;" border="1">
       <tr style="background:#eee; font-weight:bold;">
-        <td style="padding:6px;">KLIENT</td>
-        <td style="padding:6px;">WYKONAWCA</td>
+        <td style="padding:6px; width:50%;">KLIENT</td>
+        <td style="padding:6px; width:50%;">WYKONAWCA</td>
       </tr>
+
       <tr>
-        <td style="padding:8px; height:80px;">
-        ${company?.name || ""}
-        <br/>
-        ${contact ? `${contact.first_name || ""} ${contact.last_name || ""}` : ""}
-        <br/>
-        ${contact?.phone || ""}
-        <br/>
-        ${
-          form.address 
-          || (company 
-              ? `${company.address || ""} ${company.postal_code || ""} ${company.city || ""}` 
-              : "") 
-          || ""
-        }
-      </td>
-        <td style="padding:8px;">
-          BUDRENT SPÓŁKA Z O.O.<br/>
-          Kołobrzeska 42<br/>
-          10-434 Olsztyn<br/>
-          NIP: 7394012163
+        <td style="padding:8px; vertical-align:top; white-space:pre-line;">
+          ${company?.name || ""}
+          <br/>
+          ${contactName}
+          <br/>
+          ${contact?.phone || ""}
+          <br/>
+          ${fullAddress || ""}
+        </td>
+
+        <td style="padding:8px; vertical-align:top; white-space:pre-line;">
+          BUDRENT SPÓŁKA Z O.O.
+          <br/>Kołobrzeska 42
+          <br/>10-434 Olsztyn
+          <br/>NIP: 7394012163
         </td>
       </tr>
     </table>
@@ -58,19 +70,21 @@ export default function generateProtocol({ form, company, contact, processNumber
         <td style="padding:6px;">OPIS ZLECENIA</td>
       </tr>
       <tr>
-        <td style="padding:8px; height:80px;">
+        <td style="padding:8px;">
           ${form.description || ""}
         </td>
       </tr>
     </table>
 
-    <!-- WYMIENIONE CZĘŚCI -->
+    <!-- CZĘŚCI -->
     <table style="width:100%; border-collapse:collapse; margin-top:10px;" border="1">
       <tr style="background:#eee; font-weight:bold;">
         <td style="padding:6px;">WYMIENIONE CZĘŚCI</td>
       </tr>
       <tr>
-        <td style="padding:8px; height:60px;">${form.parts_used || ""}</td>
+        <td style="padding:8px;">
+          ${form.parts_used || ""}
+        </td>
       </tr>
     </table>
 
@@ -80,7 +94,9 @@ export default function generateProtocol({ form, company, contact, processNumber
         <td style="padding:6px;">ROZLICZENIE</td>
       </tr>
       <tr>
-        <td style="padding:8px; height:60px;">${form.settlement ? `${form.settlement} PLN` : ""}</td>
+        <td style="padding:8px;">
+          ${form.settlement ? `${form.settlement} PLN` : ""}
+        </td>
       </tr>
     </table>
 
@@ -90,7 +106,7 @@ export default function generateProtocol({ form, company, contact, processNumber
         <td style="padding:6px;">ZALICZKA</td>
       </tr>
       <tr>
-        <td style="padding:8px; height:40px;">
+        <td style="padding:8px;">
           ${form.advance_amount ? `${form.advance_amount} PLN` : ""}
         </td>
       </tr>
@@ -110,7 +126,7 @@ export default function generateProtocol({ form, company, contact, processNumber
       </tr>
     </table>
 
-  </div>
+    </div>
   `;
 
   html2pdf()
