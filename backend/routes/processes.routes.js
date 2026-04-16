@@ -160,7 +160,8 @@ module.exports = (db) => {
         `
         SELECT MAX(
           CAST(
-            SUBSTR(process_number, 5, INSTR(process_number, '/') - 5) AS INTEGER
+            SUBSTR(process_number, 5, INSTR(SUBSTR(process_number, 5), '/') - 1)
+            AS INTEGER
           )
         ) as max
         FROM processes

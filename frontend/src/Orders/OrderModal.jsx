@@ -67,13 +67,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
     return () => (cancelled = true);
   }, [order]);
 
-  // 🔥 NOWE: opcje adresu
   const addressOptions = [
     { value: "company", label: "Adres firmy" },
     { value: "custom", label: "Inny adres" }
   ];
 
-  // 🔥 NOWE: auto-uzupełnianie adresu przy zmianie firmy
   useEffect(() => {
     if (addressMode === "company" && selectedCompany) {
       setForm(f => ({
@@ -82,6 +80,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
       }));
     }
   }, [form.company_id, addressMode, selectedCompany]);
+
+  console.log(selectedCompany);
 
   const userOptions = users.map(u => ({
     value: u.id,
