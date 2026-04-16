@@ -14,8 +14,8 @@ export default function generateProtocol({ form, company, contact, processNumber
     ? `${contact.first_name || ""} ${contact.last_name || ""}`
     : "";
 
-  const createdAt = process?.created_at
-  ? new Date(process.created_at).toLocaleString("pl-PL")
+  const createdAt = order?.created_at
+  ? new Date(order.created_at).toLocaleString("pl-PL")
   : "";
 
   const html = `
