@@ -45,6 +45,7 @@ export default function generateProtocol({ form, company, contact, processNumber
       </tr>
 
       <tr>
+        <!-- KLIENT -->
         <td style="padding:8px; vertical-align:top; font-size:12px; line-height:1.2;">
           <div>${company?.name || ""}</div>
           <div>${contactName}</div>
@@ -52,11 +53,12 @@ export default function generateProtocol({ form, company, contact, processNumber
           <div>${fullAddress || ""}</div>
         </td>
 
-        <td style="padding:8px; vertical-align:top; white-space:pre-line;">
-          BUDRENT SPÓŁKA Z O.O.
-          <br/>Kołobrzeska 42
-          <br/>10-434 Olsztyn
-          <br/>NIP: 7394012163
+        <!-- WYKONAWCA -->
+        <td style="padding:8px; vertical-align:top; font-size:12px; line-height:1.2;">
+          <div>BUDRENT SPÓŁKA Z O.O.</div>
+          <div>Kołobrzeska 42</div>
+          <div>10-434 Olsztyn</div>
+          <div>NIP: 7394012163</div>
         </td>
       </tr>
     </table>
@@ -126,13 +128,13 @@ export default function generateProtocol({ form, company, contact, processNumber
     </div>
   `;
 
-  html2pdf()
-    .set({
-      margin: 5,
-      filename: "protokol.pdf",
-      html2canvas: { scale: 2 },
-      jsPDF: { format: "a4", orientation: "portrait" },
-    })
-    .from(html)
-    .save();
+html2pdf()
+  .set({
+    margin: 5,
+    filename: `protokol_${protocolNumber}.pdf`,
+    html2canvas: { scale: 2 },
+    jsPDF: { format: "a4", orientation: "portrait" },
+  })
+  .from(html)
+  .save();
 }
