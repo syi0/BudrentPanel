@@ -181,7 +181,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <label>Odpowiedzialny</label>
             <Select
               options={userOptions}
-              value={userOptions.find(o => o.value === form.responsible_user_id)}
+              value={userOptions.find(
+                o => o.value === Number(form.responsible_user_id)
+              )}
               onChange={o =>
                 setForm({ ...form, responsible_user_id: o?.value || "" })
               }
@@ -209,14 +211,22 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 <label>Firma</label>
                 <Select
                   options={companyOptions}
-                  value={companyOptions.find(o => o.value === form.company_id)}
-                  onChange={o =>
+                  value={companyOptions.find(
+                    o => o.value === Number(form.company_id)
+                  )}
+                  onChange={o => {
+                    const company = companies.find(c => c.id === o?.value);
+
                     setForm({
                       ...form,
                       company_id: o?.value || "",
-                      contact_id: ""
-                    })
-                  }
+                      contact_id: "",
+                      address:
+                        form.address_mode === "company"
+                          ? getCompanyAddress(company)
+                          : form.address
+                    });
+                  }}
                 />
               </>
             )}
@@ -224,7 +234,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <label>Osoba kontaktowa</label>
             <Select
               options={contactOptions}
-              value={contactOptions.find(o => o.value === form.contact_id)}
+              value={contactOptions.find(
+                o => o.value === Number(form.contact_id)
+              )}
               onChange={o =>
                 setForm({ ...form, contact_id: o?.value || "" })
               }

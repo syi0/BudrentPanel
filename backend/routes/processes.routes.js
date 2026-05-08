@@ -174,7 +174,8 @@ module.exports = (db) => {
             return res.status(500).json({ error: err.message });
           }
 
-          const next = (row?.max || 0) + 1;
+          const currentMax = row?.max || 260;
+          const next = currentMax + 1;
           const processNumber = `SRW/${next}/${yearFull}`;
 
           db.run(
