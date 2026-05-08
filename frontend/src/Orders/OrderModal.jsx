@@ -92,21 +92,6 @@ export default function OrderModal({ order, onClose, onSaved }) {
     };
   }, [order]);
 
-  useEffect(() => {
-    if (form.address_mode !== "company") return;
-
-    const company = companies.find(
-      c => c.id === Number(form.company_id)
-    );
-
-    if (!company) return;
-
-    setForm(f => ({
-      ...f,
-      address: getCompanyAddress(company)
-    }));
-  }, [form.company_id, form.address_mode, companies]);
-
   const userOptions = users.map(u => ({
     value: u.id,
     label: [u.first_name, u.last_name].filter(Boolean).join(" ")
