@@ -25,10 +25,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  const companyAddress =
-  selectedCompany
-    ? getCompanyAddress(selectedCompany)
-    : "";
+  
 
   const selectedCompany = companies.find(
     c => c.id === Number(form.company_id)
@@ -44,6 +41,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
       .filter(Boolean)
       .join(", ");
   };
+
+  const companyAddress =
+  selectedCompany
+    ? getCompanyAddress(selectedCompany)
+    : "";
 
   useEffect(() => {
     let cancelled = false;
