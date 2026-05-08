@@ -24,6 +24,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const [contacts, setContacts] = useState([]);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  const companyAddress =
+  selectedCompany
+    ? getCompanyAddress(selectedCompany)
+    : "";
 
   const selectedCompany = companies.find(
     c => c.id === Number(form.company_id)
@@ -258,7 +263,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             <Select
               options={addressOptions}
-              value={addressOptions.find(o => o.value === form.address_mode)}
+              value={addressOptions.find(
+                o => o.value === form.address_mode
+              )}
               onChange={(o) => {
                 const mode = o.value;
 
@@ -267,7 +274,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
                   address_mode: mode,
                   address:
                     mode === "company"
-                      ? getCompanyAddress(selectedCompany)
+                      ? companyAddress
                       : ""
                 }));
               }}
@@ -278,11 +285,18 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 placeholder="Wpisz adres"
                 value={form.address}
                 onChange={e =>
-                  setForm({ ...form, address: e.target.value })
+                  setForm({
+                    ...form,
+                    address: e.target.value
+                  })
                 }
               />
             ) : (
-              <input value={form.address} disabled />
+              <textarea
+                value={companyAddress}
+                disabled
+                className="address-preview"
+              />
             )}
           </div>
 
