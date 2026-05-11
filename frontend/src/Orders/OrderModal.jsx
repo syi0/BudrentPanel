@@ -37,7 +37,13 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
   const getCompanyAddress = (c) => {
     if (!c) return "";
-    return [c.address, c.postal_code, c.city]
+
+    return [
+      c.address,
+      [c.postal_code, c.city]
+        .filter(Boolean)
+        .join(" ")
+    ]
       .filter(Boolean)
       .join(", ");
   };
@@ -60,9 +66,23 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
         if (cancelled) return;
 
-        setCompanies(cRes.data || []);
-        setContacts(ctRes.data || []);
-        setUsers(uRes.data || []);
+        setCompanies(
+          Array.isArray(cRes.data)
+            ? cRes.data
+            : cRes.data.data || []
+        );
+
+        setContacts(
+          Array.isArray(ctRes.data)
+            ? ctRes.data
+            : ctRes.data.data || []
+        );
+
+        setUsers(
+          Array.isArray(uRes.data)
+            ? uRes.data
+            : uRes.data.data || []
+        );
       } catch (err) {
         console.error(err);
       }
@@ -172,6 +192,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             <label>Odpowiedzialny</label>
             <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
               options={userOptions}
               value={userOptions.find(
                 o => o.value === Number(form.responsible_user_id)
@@ -202,6 +224,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
               <>
                 <label>Firma</label>
                 <Select
+                  className="react-select-container"
+                  classNamePrefix="react-select"
                   options={companyOptions}
                   value={companyOptions.find(
                     o => o.value === Number(form.company_id)
@@ -225,6 +249,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             <label>Osoba kontaktowa</label>
             <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
               options={contactOptions}
               value={contactOptions.find(
                 o => o.value === Number(form.contact_id)
@@ -249,6 +275,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <label>Adres</label>
 
             <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
               options={addressOptions}
               value={addressOptions.find(
                 o => o.value === form.address_mode
@@ -299,6 +327,8 @@ export default function OrderModal({ order, onClose, onSaved }) {
 
             <label>Status</label>
             <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
               options={statusOptions}
               value={statusOptions.find(o => o.value === form.status)}
               onChange={o =>

@@ -252,3 +252,72 @@
 .delete-btn:hover {
   background: #c0392b;
 }
+
+.react-select-container {
+    width: 100%;
+    min-width: 0;
+}
+
+.react-select__control {
+    min-height: 42px !important;
+    border-radius: 8px !important;
+    border: 1px solid #dcdcdc !important;
+    box-shadow: none !important;
+}
+
+.react-select__value-container {
+    overflow: hidden !important;
+    flex-wrap: nowrap !important;
+}
+
+.react-select__single-value {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    max-width: 100%;
+}
+
+.react-select__menu {
+    z-index: 9999;
+}
+
+.address-preview {
+    width: 100%;
+    min-height: 80px !important;
+    resize: vertical;
+    background: #f7f7f7;
+}
+
+.modal {
+    width: min(1000px, 95vw);
+    max-width: 95vw;
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr);
+    gap: 24px;
+}
+
+.modal-col {
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .modal-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal {
+        width: 95vw;
+        padding: 18px;
+    }
+
+    .toggle-group {
+        width: 100%;
+    }
+
+    .toggle-group button {
+        width: 100%;
+    }
+}
