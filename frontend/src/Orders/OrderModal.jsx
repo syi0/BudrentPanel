@@ -25,6 +25,9 @@ export default function OrderModal({ order, onClose, onSaved }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   
+  const createdDate = order?.created_at
+  ? new Date(order.created_at).toLocaleString("pl-PL")
+  : null;
   
 
   const selectedCompany = companies.find(
@@ -332,7 +335,11 @@ export default function OrderModal({ order, onClose, onSaved }) {
               options={statusOptions}
               value={statusOptions.find(o => o.value === form.status)}
               onChange={o =>
-                setForm({ ...form, status: o.value })
+                setForm({
+                  ...form,
+                  status: o.value,
+                  parts_used: o.value === "nowy" ? "" : form.parts_used
+                })
               }
             />
 
@@ -357,10 +364,17 @@ export default function OrderModal({ order, onClose, onSaved }) {
             <label>Wymienione części</label>
             <textarea
               value={form.parts_used}
+              disabled={form.status === "nowy"}
               onChange={e =>
                 setForm({ ...form, parts_used: e.target.value })
               }
             />
+
+            {order?.created_at && (
+              <div className="created-info">
+                Utworzone: {createdDate}
+              </div>
+            )}
           </div>
         </div>
 

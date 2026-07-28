@@ -39,7 +39,13 @@ module.exports = (db) => {
     const params = [];
 
     if (company) {
-      baseSql += ` AND (c.name LIKE ? OR ct.first_name LIKE ? OR ct.last_name LIKE ?)`;
+      baseSql += `
+        AND (
+          c.name COLLATE NOCASE LIKE ?
+          OR ct.first_name COLLATE NOCASE LIKE ?
+          OR ct.last_name COLLATE NOCASE LIKE ?
+        )
+      `;
       params.push(`%${company}%`, `%${company}%`, `%${company}%`);
     }
 
@@ -49,27 +55,37 @@ module.exports = (db) => {
     }
 
     if (process_number) {
-      baseSql += ` AND p.process_number LIKE ?`;
+      baseSql += ` AND LOWER(p.process_number) LIKE LOWER(?)`;
       params.push(`%${process_number}%`);
     }
 
     if (responsible) {
-      baseSql += ` AND (u.first_name LIKE ? OR u.last_name LIKE ?)`;
+      baseSql += `
+        AND (
+          LOWER(u.first_name) LIKE LOWER(?)
+          OR LOWER(u.last_name) LIKE LOWER(?)
+        )
+      `;
       params.push(`%${responsible}%`, `%${responsible}%`);
     }
 
     if (description) {
-      baseSql += ` AND p.description LIKE ?`;
+      baseSql += ` AND LOWER(p.description) LIKE LOWER(?)`;
       params.push(`%${description}%`);
     }
 
     if (parts) {
-      baseSql += ` AND p.parts_used LIKE ?`;
+      baseSql += ` AND LOWER(p.parts_used) LIKE LOWER(?)`;
       params.push(`%${parts}%`);
     }
 
     if (contact) {
-      baseSql += ` AND (ct.first_name LIKE ? OR ct.last_name LIKE ?)`;
+      baseSql += `
+        AND (
+          LOWER(ct.first_name) LIKE LOWER(?)
+          OR LOWER(ct.last_name) LIKE LOWER(?)
+        )
+      `;
       params.push(`%${contact}%`, `%${contact}%`);
     }
 

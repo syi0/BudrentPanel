@@ -50,7 +50,7 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
   }, [contact]);
 
   const companyOptions = companies.map(c => ({
-    value: c.id,
+    value: Number(c.id),
     label: c.name,
   }));
 
@@ -67,7 +67,6 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
       }
     }
 
-    // 🔥 Email tylko jeśli podany
     if (form.email?.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(form.email)) {
@@ -140,8 +139,13 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
         <Select
           options={companyOptions}
           placeholder="— wybierz firmę —"
-          value={companyOptions.find(o => o.value === form.company_id) || null}
-          onChange={option => setForm({ ...form, company_id: option?.value || "" })}
+          value={
+            companyOptions.find(o => Number(o.value) === Number(form.company_id)) || null
+          }
+          onChange={option => setForm({ 
+              ...form, 
+              company_id: option ? Number(option.value) : ""
+            })}
           isSearchable
         />
 
