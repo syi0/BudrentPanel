@@ -16,10 +16,38 @@ module.exports = (db) => {
   const normalizeText = (text) => {
     return String(text || "")
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/ł/g, "l");
+      .replace(/ą/g, "a")
+      .replace(/ć/g, "c")
+      .replace(/ę/g, "e")
+      .replace(/ł/g, "l")
+      .replace(/ń/g, "n")
+      .replace(/ó/g, "o")
+      .replace(/ś/g, "s")
+      .replace(/ź/g, "z")
+      .replace(/ż/g, "z");
   };
+
+  const normalizeSql = (column) => `
+    LOWER(
+      REPLACE(
+        REPLACE(
+          REPLACE(
+            REPLACE(
+              REPLACE(
+                REPLACE(
+                  REPLACE(
+                    REPLACE(
+                      REPLACE(${column}, 'ą', 'a'),
+                    'ć', 'c'),
+                  'ę', 'e'),
+                'ł', 'l'),
+              'ń', 'n'),
+            'ó', 'o'),
+          'ś', 's'),
+        'ź', 'z'),
+      'ż', 'z')
+    )
+`;
 
   router.get("/", (req, res) => {
     const {
@@ -51,29 +79,9 @@ module.exports = (db) => {
 
       baseSql += `
         AND (
-          LOWER(
-            REPLACE(
-              REPLACE(
-                REPLACE(c.name, 'ł', 'l'),
-              'Ł', 'L'),
-            'ą', 'a')
-          ) LIKE ?
-
-          OR LOWER(
-            REPLACE(
-              REPLACE(
-                REPLACE(ct.first_name, 'ł', 'l'),
-              'Ł', 'L'),
-            'ą', 'a')
-          ) LIKE ?
-
-          OR LOWER(
-            REPLACE(
-              REPLACE(
-                REPLACE(ct.last_name, 'ł', 'l'),
-              'Ł', 'L'),
-            'ą', 'a')
-          ) LIKE ?
+          ${normalizeSql("c.name")} LIKE ?
+          OR ${normalizeSql("ct.first_name")} LIKE ?
+          OR ${normalizeSql("ct.last_name")} LIKE ?
         )
       `;
 
@@ -115,17 +123,8 @@ module.exports = (db) => {
 
       baseSql += `
         AND (
-          LOWER(
-            REPLACE(
-              REPLACE(ct.first_name,'ł','l'),
-            'Ł','L')
-          ) LIKE ?
-
-          OR LOWER(
-            REPLACE(
-              REPLACE(ct.last_name,'ł','l'),
-            'Ł','L')
-          ) LIKE ?
+          ${normalizeSql("ct.first_name")} LIKE ?
+          OR ${normalizeSql("ct.last_name")} LIKE ?
         )
       `;
 
