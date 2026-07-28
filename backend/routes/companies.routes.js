@@ -169,6 +169,24 @@ module.exports = (db) => {
         );
     });
 
+    router.get("/all", (req, res) => {
+        db.all(
+            `
+            SELECT *
+            FROM companies
+            ORDER BY name
+            `,
+            [],
+            (err, rows) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+
+                res.json(rows);
+            }
+        );
+    });
+
     router.delete("/:id", (req, res) => {
         const { id } = req.params;
 

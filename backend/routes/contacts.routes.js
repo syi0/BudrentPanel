@@ -17,7 +17,7 @@ module.exports = (db) => {
 
         const p = Math.max(Number(page) || 1, 1);
 
-        const l = all === "true"
+        const l = String(all) === "true"
             ? 999999
             : Math.min(Number(limit) || 20, 100);
 

@@ -51,14 +51,14 @@ module.exports = (db) => {
 
       baseSql += `
         AND (
-          LOWER(REPLACE(REPLACE(c.name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
-          OR LOWER(REPLACE(REPLACE(ct.first_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
-          OR LOWER(REPLACE(REPLACE(ct.last_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
+          normalize(c.name) LIKE ?
+          OR normalize(ct.first_name) LIKE ?
+          OR normalize(ct.last_name) LIKE ?
         )
       `;
 
       params.push(search, search, search);
-    }
+  }
 
     if (status) {
       baseSql += ` AND p.status = ?`;
@@ -91,16 +91,16 @@ module.exports = (db) => {
     }
 
     if (contact) {
-      const search = `%${normalizeText(contact)}%`;
+        const search = `%${normalizeText(contact)}%`;
 
-      baseSql += `
-        AND (
-          LOWER(REPLACE(REPLACE(ct.first_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
-          OR LOWER(REPLACE(REPLACE(ct.last_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
-        )
-      `;
+        baseSql += `
+          AND (
+            normalize(ct.first_name) LIKE ?
+            OR normalize(ct.last_name) LIKE ?
+          )
+        `;
 
-      params.push(search, search);
+        params.push(search, search);
     }
 
     db.get(`SELECT COUNT(*) as total ${baseSql}`, params, (err, countRow) => {
