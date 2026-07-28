@@ -10,16 +10,6 @@ const app = express();
 
 const db = new sqlite3.Database("./data.sqlite");
 
-db.create_function("normalize", (text) => {
-    if (!text) return "";
-
-    return String(text)
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/ł/g, "l");
-});
-
 app.use(helmet({
     contentSecurityPolicy: false
 }));

@@ -14,12 +14,12 @@ module.exports = (db) => {
   };
 
   const normalizeText = (text) => {
-  return String(text)
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/ł/g, "l");
-};
+    return String(text || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ł/g, "l");
+  };
 
   router.get("/", (req, res) => {
     const {
@@ -51,14 +51,34 @@ module.exports = (db) => {
 
       baseSql += `
         AND (
-          normalize(c.name) LIKE ?
-          OR normalize(ct.first_name) LIKE ?
-          OR normalize(ct.last_name) LIKE ?
+          LOWER(
+            REPLACE(
+              REPLACE(
+                REPLACE(c.name, 'ł', 'l'),
+              'Ł', 'L'),
+            'ą', 'a')
+          ) LIKE ?
+
+          OR LOWER(
+            REPLACE(
+              REPLACE(
+                REPLACE(ct.first_name, 'ł', 'l'),
+              'Ł', 'L'),
+            'ą', 'a')
+          ) LIKE ?
+
+          OR LOWER(
+            REPLACE(
+              REPLACE(
+                REPLACE(ct.last_name, 'ł', 'l'),
+              'Ł', 'L'),
+            'ą', 'a')
+          ) LIKE ?
         )
       `;
 
       params.push(search, search, search);
-  }
+    }
 
     if (status) {
       baseSql += ` AND p.status = ?`;
@@ -91,16 +111,25 @@ module.exports = (db) => {
     }
 
     if (contact) {
-        const search = `%${normalizeText(contact)}%`;
+      const search = `%${normalizeText(contact)}%`;
 
-        baseSql += `
-          AND (
-            normalize(ct.first_name) LIKE ?
-            OR normalize(ct.last_name) LIKE ?
-          )
-        `;
+      baseSql += `
+        AND (
+          LOWER(
+            REPLACE(
+              REPLACE(ct.first_name,'ł','l'),
+            'Ł','L')
+          ) LIKE ?
 
-        params.push(search, search);
+          OR LOWER(
+            REPLACE(
+              REPLACE(ct.last_name,'ł','l'),
+            'Ł','L')
+          ) LIKE ?
+        )
+      `;
+
+      params.push(search, search);
     }
 
     db.get(`SELECT COUNT(*) as total ${baseSql}`, params, (err, countRow) => {
