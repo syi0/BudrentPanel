@@ -22,39 +22,27 @@ module.exports = (db) => {
   };
 
   const normalizeSql = (column) => `
-  LOWER(
+LOWER(
+  REPLACE(
     REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(
-    REPLACE(${column},
-    'ą','a'),
-    'Ą','a'),
-    'ć','c'),
-    'Ć','c'),
-    'ę','e'),
-    'Ę','e'),
-    'ł','l'),
-    'Ł','l'),
-    'ń','n'),
-    'Ń','n'),
-    'ó','o'),
-    'Ó','o'),
-    'ś','s'),
-    'Ś','s'),
+      REPLACE(
+        REPLACE(
+          REPLACE(
+            REPLACE(
+              REPLACE(
+                REPLACE(
+                  REPLACE(${column},
+                  'ą','a'),
+                'ć','c'),
+              'ę','e'),
+            'ł','l'),
+          'ń','n'),
+        'ó','o'),
+      'ś','s'),
     'ź','z'),
-    'Ź','z'),
-    'ż','z'),
-    'Ż','z')
-  )
-  `;
+  'ż','z')
+)
+`;
 
   router.get("/", (req, res) => {
     const {
