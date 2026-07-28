@@ -16,38 +16,45 @@ module.exports = (db) => {
   const normalizeText = (text) => {
     return String(text || "")
       .toLowerCase()
-      .replace(/ą/g, "a")
-      .replace(/ć/g, "c")
-      .replace(/ę/g, "e")
-      .replace(/ł/g, "l")
-      .replace(/ń/g, "n")
-      .replace(/ó/g, "o")
-      .replace(/ś/g, "s")
-      .replace(/ź/g, "z")
-      .replace(/ż/g, "z");
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/ł/g, "l");
   };
 
   const normalizeSql = (column) => `
-    LOWER(
-      REPLACE(
-        REPLACE(
-          REPLACE(
-            REPLACE(
-              REPLACE(
-                REPLACE(
-                  REPLACE(
-                    REPLACE(
-                      REPLACE(${column}, 'ą', 'a'),
-                    'ć', 'c'),
-                  'ę', 'e'),
-                'ł', 'l'),
-              'ń', 'n'),
-            'ó', 'o'),
-          'ś', 's'),
-        'ź', 'z'),
-      'ż', 'z')
-    )
-`;
+  LOWER(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(
+    REPLACE(${column},
+    'ą','a'),
+    'Ą','a'),
+    'ć','c'),
+    'Ć','c'),
+    'ę','e'),
+    'Ę','e'),
+    'ł','l'),
+    'Ł','l'),
+    'ń','n'),
+    'Ń','n'),
+    'ó','o'),
+    'Ó','o'),
+    'ś','s'),
+    'Ś','s'),
+    'ź','z'),
+    'Ź','z'),
+    'ż','z'),
+    'Ż','z')
+  )
+  `;
 
   router.get("/", (req, res) => {
     const {
