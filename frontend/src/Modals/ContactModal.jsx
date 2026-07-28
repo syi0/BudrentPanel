@@ -17,7 +17,11 @@ export default function ContactModal({ contact, onClose, onSuccess }) {
   });
 
   useEffect(() => {
-    api.get("/companies")
+    api.get("/companies", {
+      params: {
+        all: true
+      }
+    })
       .then(res => {
         const list = res.data?.data;
         setCompanies(Array.isArray(list) ? list : []);

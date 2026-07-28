@@ -11,11 +11,16 @@ module.exports = (db) => {
             email = "",
             verified = "",
             page = 1,
-            limit = 20
+            limit = 20,
+            all = "false"
         } = req.query;
 
         const p = Math.max(Number(page) || 1, 1);
-        const l = Math.min(Number(limit) || 20, 100);
+
+        const l = all === "true"
+            ? 999999
+            : Math.min(Number(limit) || 20, 100);
+
         const offset = (p - 1) * l;
 
         const filters = [];

@@ -13,6 +13,14 @@ module.exports = (db) => {
     return typeof val === "string" ? val : "";
   };
 
+  const normalizeText = (text) => {
+  return String(text)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ł/g, "l");
+};
+
   router.get("/", (req, res) => {
     const {
       company,
@@ -39,14 +47,17 @@ module.exports = (db) => {
     const params = [];
 
     if (company) {
+      const search = `%${normalizeText(company)}%`;
+
       baseSql += `
         AND (
-          c.name COLLATE NOCASE LIKE ?
-          OR ct.first_name COLLATE NOCASE LIKE ?
-          OR ct.last_name COLLATE NOCASE LIKE ?
+          LOWER(REPLACE(REPLACE(c.name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
+          OR LOWER(REPLACE(REPLACE(ct.first_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
+          OR LOWER(REPLACE(REPLACE(ct.last_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
         )
       `;
-      params.push(`%${company}%`, `%${company}%`, `%${company}%`);
+
+      params.push(search, search, search);
     }
 
     if (status) {
@@ -80,13 +91,16 @@ module.exports = (db) => {
     }
 
     if (contact) {
+      const search = `%${normalizeText(contact)}%`;
+
       baseSql += `
         AND (
-          LOWER(ct.first_name) LIKE LOWER(?)
-          OR LOWER(ct.last_name) LIKE LOWER(?)
+          LOWER(REPLACE(REPLACE(ct.first_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
+          OR LOWER(REPLACE(REPLACE(ct.last_name, 'ł', 'l'), 'Ł', 'L')) LIKE ?
         )
       `;
-      params.push(`%${contact}%`, `%${contact}%`);
+
+      params.push(search, search);
     }
 
     db.get(`SELECT COUNT(*) as total ${baseSql}`, params, (err, countRow) => {
