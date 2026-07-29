@@ -3,6 +3,37 @@ const express = require("express");
 module.exports = (db) => {
     const router = express.Router();
 
+    const normalizeText = (text) => {
+        return String(text || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ł/g, "l");
+    };
+
+    const normalizeSql = (column) => `
+    LOWER(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(${column},
+        'Ą','a'), 'ą','a'),
+        'Ć','c'), 'ć','c'),
+        'Ę','e'), 'ę','e'),
+        'Ł','l'), 'ł','l'),
+        'Ń','n'), 'ń','n'),
+        'Ó','o'), 'ó','o'),
+        'Ś','s'), 'ś','s'),
+        'Ź','z'), 'ź','z'),
+        'Ż','z'), 'ż','z')
+    )
+    `;
+
     router.get("/", (req, res) => {
         const {
             company = "",
@@ -27,20 +58,20 @@ module.exports = (db) => {
         const params = [];
 
         if (company) {
-            filters.push("c.name LIKE ? COLLATE BINARY");
-            params.push(`%${company}%`);
+            filters.push(`${normalizeSql("c.name")} LIKE ?`);
+            params.push(`%${normalizeText(company)}%`);
         }
         if (first_name) {
-            filters.push("ct.first_name LIKE ? COLLATE BINARY");
-            params.push(`%${first_name}%`);
+            filters.push(`${normalizeSql("ct.first_name")} LIKE ?`);
+            params.push(`%${normalizeText(first_name)}%`);
         }
         if (last_name) {
-            filters.push("ct.last_name LIKE ? COLLATE BINARY");
-            params.push(`%${last_name}%`);
+            filters.push(`${normalizeSql("ct.last_name")} LIKE ?`);
+            params.push(`%${normalizeText(last_name)}%`);
         }
         if (email) {
-            filters.push("ct.email LIKE ? COLLATE BINARY");
-            params.push(`%${email}%`);
+            filters.push(`${normalizeSql("ct.email")} LIKE ?`);
+            params.push(`%${normalizeText(email)}%`);
         }
         if (verified !== "") {
             filters.push("ct.verified = ?");

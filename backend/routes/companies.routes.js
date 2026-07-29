@@ -3,6 +3,37 @@ const express = require("express");
 module.exports = (db) => {
     const router = express.Router();
 
+    const normalizeText = (text) => {
+        return String(text || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/ł/g, "l");
+    };
+
+    const normalizeSql = (column) => `
+        LOWER(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(
+        REPLACE(REPLACE(${column},
+            'Ą','a'), 'ą','a'),
+            'Ć','c'), 'ć','c'),
+            'Ę','e'), 'ę','e'),
+            'Ł','l'), 'ł','l'),
+            'Ń','n'), 'ń','n'),
+            'Ó','o'), 'ó','o'),
+            'Ś','s'), 'ś','s'),
+            'Ź','z'), 'ź','z'),
+            'Ż','z'), 'ż','z')
+        )
+        `;
+
     router.get("/", (req, res) => {
         const {
             name = "",
@@ -24,43 +55,44 @@ module.exports = (db) => {
         const params = [];
 
         if (name) {
-            filters.push("c.name LIKE ? COLLATE BINARY");
-            params.push(`%${name}%`);
+            filters.push(`${normalizeSql("c.name")} LIKE ?`);
+            params.push(`%${normalizeText(name)}%`);
         }
 
         if (nip) {
-            filters.push("c.nip LIKE ? COLLATE BINARY");
-            params.push(`%${nip}%`);
+            filters.push(`${normalizeSql("c.nip")} LIKE ?`);
+            params.push(`%${normalizeText(nip)}%`);
         }
 
         if (city) {
-            filters.push("c.city LIKE ? COLLATE BINARY");
-            params.push(`%${city}%`);
+            filters.push(`${normalizeSql("c.city")} LIKE ?`);
+            params.push(`%${normalizeText(city)}%`);
         }
 
         if (address) {
-            filters.push("c.address LIKE ? COLLATE BINARY");
-            params.push(`%${address}%`);
+            filters.push(`${normalizeSql("c.address")} LIKE ?`);
+            params.push(`%${normalizeText(address)}%`);
         }
 
         if (postal_code) {
-            filters.push("c.postal_code LIKE ? COLLATE BINARY");
-            params.push(`%${postal_code}%`);
+            filters.push(`${normalizeSql("c.postal_code")} LIKE ?`);
+            params.push(`%${normalizeText(postal_code)}%`);
         }
 
         if (account_manager) {
-            filters.push("c.account_manager LIKE ? COLLATE BINARY");
-            params.push(`%${account_manager}%`);
+            filters.push(`${normalizeSql("c.account_manager")} LIKE ?`);
+            params.push(`%${normalizeText(account_manager)}%`);
         }
 
         if (contact_person) {
+            const search = `%${normalizeText(contact_person)}%`;
             filters.push(`
                 (
-                    ct.first_name LIKE ? COLLATE BINARY
-                    OR ct.last_name LIKE ? COLLATE BINARY
+                    ${normalizeSql("ct.first_name")} LIKE ?
+                    OR ${normalizeSql("ct.last_name")} LIKE ?
                 )
             `);
-            params.push(`%${contact_person}%`, `%${contact_person}%`);
+            params.push(search, search);
         }
 
         const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
