@@ -22,27 +22,27 @@ module.exports = (db) => {
   };
 
   const normalizeSql = (column) => `
-LOWER(
-  REPLACE(
-    REPLACE(
-      REPLACE(
-        REPLACE(
-          REPLACE(
-            REPLACE(
-              REPLACE(
-                REPLACE(
-                  REPLACE(${column},
-                  'ą','a'),
-                'ć','c'),
-              'ę','e'),
-            'ł','l'),
-          'ń','n'),
-        'ó','o'),
-      'ś','s'),
-    'ź','z'),
-  'ż','z')
-)
-`;
+  LOWER(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(
+    REPLACE(REPLACE(${column},
+      'Ą','a'), 'ą','a'),
+      'Ć','c'), 'ć','c'),
+      'Ę','e'), 'ę','e'),
+      'Ł','l'), 'ł','l'),
+      'Ń','n'), 'ń','n'),
+      'Ó','o'), 'ó','o'),
+      'Ś','s'), 'ś','s'),
+      'Ź','z'), 'ź','z'),
+      'Ż','z'), 'ż','z')
+  )
+  `;
 
   router.get("/", (req, res) => {
     const {
@@ -94,23 +94,26 @@ LOWER(
     }
 
     if (responsible) {
+      const search = `%${normalizeText(responsible)}%`;
       baseSql += `
         AND (
-          LOWER(u.first_name) LIKE LOWER(?)
-          OR LOWER(u.last_name) LIKE LOWER(?)
+          ${normalizeSql("u.first_name")} LIKE ?
+          OR ${normalizeSql("u.last_name")} LIKE ?
         )
       `;
-      params.push(`%${responsible}%`, `%${responsible}%`);
+      params.push(search, search);
     }
 
     if (description) {
-      baseSql += ` AND LOWER(p.description) LIKE LOWER(?)`;
-      params.push(`%${description}%`);
+      const search = `%${normalizeText(description)}%`;
+      baseSql += ` AND ${normalizeSql("p.description")} LIKE ?`;
+      params.push(search);
     }
 
     if (parts) {
-      baseSql += ` AND LOWER(p.parts_used) LIKE LOWER(?)`;
-      params.push(`%${parts}%`);
+      const search = `%${normalizeText(parts)}%`;
+      baseSql += ` AND ${normalizeSql("p.parts_used")} LIKE ?`;
+      params.push(search);
     }
 
     if (contact) {
