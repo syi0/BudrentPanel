@@ -146,6 +146,7 @@ module.exports = (db) => {
           p.description,
           p.advance_amount,
           p.settlement,
+          p.settlement_type,
           p.parts_used,
           p.status,
           p.address,
@@ -185,6 +186,7 @@ module.exports = (db) => {
         description,
         advance_amount,
         settlement,
+        settlement_type,
         status,
         address,
         parts_used
@@ -282,10 +284,13 @@ module.exports = (db) => {
         description,
         advance_amount,
         settlement,
+        settlement_type,
         status,
         address,
         parts_used
       } = req.body;
+
+      settlement_type = settlement_type || "gross";
 
       company_id = company_id ? Number(company_id) : null;
       contact_id = contact_id ? Number(contact_id) : null;
@@ -311,6 +316,7 @@ module.exports = (db) => {
           description = ?,
           advance_amount = ?,
           settlement = ?,
+          settlement_type = ?,
           status = ?,
           address = ?,
           parts_used = ?
@@ -323,6 +329,7 @@ module.exports = (db) => {
           description,
           advance_amount,
           settlement,
+          settlement_type,
           status,
           address,
           parts_used,

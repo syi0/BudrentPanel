@@ -14,6 +14,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
     description: "",
     advance_amount: "",
     settlement: "",
+    settlement_type: "gross",
     parts_used: "",
     status: "nowy",
     address: "",
@@ -101,6 +102,7 @@ export default function OrderModal({ order, onClose, onSaved }) {
         description: order.description || "",
         advance_amount: order.advance_amount || "",
         settlement: order.settlement || "",
+        settlement_type: order.settlement_type || "gross",
         parts_used: order.parts_used || "",
         status: order.status || "nowy",
         address: order.address || "",
@@ -360,6 +362,28 @@ export default function OrderModal({ order, onClose, onSaved }) {
                 setForm({ ...form, settlement: e.target.value })
               }
             />
+
+            <div className="toggle-group">
+              <button
+                type="button"
+                className={form.settlement_type === "net" ? "active" : ""}
+                onClick={() =>
+                  setForm({ ...form, settlement_type: "net" })
+                }
+              >
+                Netto
+              </button>
+
+              <button
+                type="button"
+                className={form.settlement_type === "gross" ? "active" : ""}
+                onClick={() =>
+                  setForm({ ...form, settlement_type: "gross" })
+                }
+              >
+                Brutto
+              </button>
+            </div>
 
             <label>Wymienione części</label>
             <textarea
